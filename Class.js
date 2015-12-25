@@ -1,0 +1,1 @@
+nwjsutils/Class.js

@@ -1,0 +1,31 @@
+<html>
+<head>
+ 	<script src="processing.js"></script>
+	<script src="./require.js"></script>
+
+	<script>
+
+	var p = null;
+	var gameController = null;
+	function init()
+	{
+		var Log = require('./Log');
+		var logger = new Log.Logger("test");
+		logger.LogMask = Log.DEBUG | Log.WARN | Log.ERROR;
+
+		require("./Game", function(m) {
+			logger.debug("Loaded");
+			gameController = new m.GameController();
+			var canvas = document.getElementById("canvas");
+			// Attach the game's sketchProc function to the canvas.
+			p = new Processing(canvas, gameController.sketchProc.bind(gameController));
+		});
+	}
+	</script>
+</head>
+
+
+<body onload="init()">
+<p><canvas id="canvas" width="800" height="600"></canvas></p>
+</body>
+</html>
