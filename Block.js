@@ -33,9 +33,6 @@ var Block = GameObject.extend({
 	
 	mouseClicked: function(x, y)
 	{
-		x-=this.x;
-		y-=this.y;
-		
 		this.logger.debug("Block " + x + "," + y);
 		if(this.userInteractionEnabled && this.containsPoint(x, y))
 		{

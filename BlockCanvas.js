@@ -38,19 +38,16 @@ var BlockCanvas = GameObject.extend({
 	mouseClicked: function(x, y)
 	{
 		this.logger.debug(x + "," + y);
-		if(this.userInteractionEnabled && this.containsPoint(x, y))
+		// Use default implementation to check if any children will handle the mouseClick.
+		if(this._super(x, y) == true)
 		{
-			// Use default implementation to check if any children will handle the mouseClick.
-			if(this._super(x, y) == false)
-			{
-				this.logger.debug("no BlockCanvas children handled click. Placing block.")
-				// No children handled the mouseClick, handle here.
-				this.placeBlock(x-this.x, y-this.y);
-				return true;
-			}
-		}			
-		
-		return false;
+			return true;
+		}
+
+		this.logger.debug("no BlockCanvas children handled click. Placing block.")
+		// No children handled the mouseClick, handle here.
+		this.placeBlock(x-this.x, y-this.y);
+		return true;
 	}
 });
 
