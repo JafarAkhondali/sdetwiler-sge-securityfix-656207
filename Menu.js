@@ -25,6 +25,10 @@ var Menu = GameObject.extend({
 		var item = this.addMenuItem("Red", this.processing.color(255, 0, 0), null);
 		this.addMenuItem("Green", this.processing.color(0, 255, 0), null);
 		this.addMenuItem("Blue", this.processing.color(0, 0, 255), null);
+		this.addMenuItem("Brown", this.processing.color(139, 69, 19), null);
+		this.addMenuItem("White", this.processing.color(255, 255, 255), null);
+		this.addMenuItem("Yellow", this.processing.color(255, 255, 0), null);
+		this.addMenuItem("Orange", this.processing.color(255, 140, 0), null);
 		this.selectMenuItem(item);
 
 		this.handle = new MenuHandle(this);

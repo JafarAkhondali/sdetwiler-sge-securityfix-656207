@@ -28,7 +28,7 @@ var GameController = Class.extend({
 
 		processing.draw = this.draw.bind(this);
 		processing.mouseClicked = this.mouseClicked.bind(this);
-		
+		processing.keyPressed = this.keyPressed.bind(this);
 		this.menu = new Menu.Menu(this);
 		
 		this.scene = new Scene(this);
@@ -68,6 +68,11 @@ var GameController = Class.extend({
 		{
 			return;
 		}
+	},
+	
+	keyPressed: function()
+	{
+		this.scene.keyPressed();
 	}
 	
 });

@@ -1,0 +1,16 @@
+var Block = require('./Block');
+
+///////////////////////////////////////////////////////////////////////////////
+// OrangeBlock
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+var OrangeBlock = Block.extend({
+	init: function(parent)
+	{
+		this._super(parent);
+		this.fillColor = this.processing.color(255, 140, 0);
+	}
+});
+
+module.exports = OrangeBlock;

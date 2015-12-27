@@ -10,8 +10,8 @@ var Block = GameObject.extend({
 	{
 		this._super(parent);
 		this.logger.scope = "Block";
-		this.width = 80;
-		this.height = 80;
+		this.width = 50;
+		this.height = 50;
 		
 		this.fillColor = this.processing.color(255,255,255);
 		this.strokeColor = this.processing.color(0,0,0);
