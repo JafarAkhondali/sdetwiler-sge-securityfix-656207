@@ -190,7 +190,30 @@ var GameObject = Class.extend({
 			}
 		}
 		return false;
+	},
+
+	// x,y are provided in the coordinate space of the parent GameObject.
+	// Returns true if drag was handled, false if not.
+	mouseDragged: function(x, y)
+	{
+		this.logger.debug("called");
+		if(this.userInteractionEnabled && ((this.childrenMustBeInBounds && this.containsPoint(x, y)) || !this.childrenMustBeInBounds))
+		{
+			
+			// console.log(this.x + "," + this.y + "    " + loc.x + "," + loc.y);
+			
+			for(var i=0; i<this.children.length; ++i)
+			{
+				var go = this.children[i];
+				if(go.mouseDragged(x-this.x, y-this.y))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
+
 });
 
 module.exports = GameObject;

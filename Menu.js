@@ -60,6 +60,16 @@ var Menu = GameObject.extend({
 		return this._super();
 	},
 
+	mouseDragged: function(x, y)
+	{
+		if(this.userInteractionEnabled && this.containsPoint(x, y))
+		{
+			this.targetY+= this.processing.mouseY - this.processing.pmouseY;
+			return true;
+		}
+		return false;
+	},
+
 	mouseClicked: function(x, y)
 	{
 		if(this._super(x,y))

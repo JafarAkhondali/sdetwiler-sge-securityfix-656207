@@ -28,6 +28,7 @@ var GameController = Class.extend({
 
 		processing.draw = this.draw.bind(this);
 		processing.mouseClicked = this.mouseClicked.bind(this);
+		processing.mouseDragged = this.mouseDragged.bind(this);
 		processing.keyPressed = this.keyPressed.bind(this);
 		this.menu = new Menu.Menu(this);
 		
@@ -65,6 +66,17 @@ var GameController = Class.extend({
 			return;
 		}
 		else if(this.scene.mouseClicked(x, y))
+		{
+			return;
+		}
+	},
+
+	mouseDragged: function()
+	{
+		var x = this.processing.mouseX;
+		var y = this.processing.mouseY;
+		
+		if(this.menu.mouseDragged(x, y))
 		{
 			return;
 		}
