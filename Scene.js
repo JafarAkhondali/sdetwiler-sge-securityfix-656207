@@ -22,8 +22,7 @@ var Scene = GameObject.extend({
 
 		this.fillColor = this.processing.color(255,255,255);
 		this.strokeColor = this.processing.color(0,0,0);
-		
-		this.targetX = this.x;
+		this.childrenMustBeInBounds = false;
 	},
 		
 	drawObject: function()
@@ -63,23 +62,17 @@ var Scene = GameObject.extend({
 			go = new Block(this);
 		}
 
-		console.log(go);
 		x = Math.round(x/go.width)*go.width;
 		y = Math.round(y/go.height)*go.width;
 		go.x = x-(go.width/2);
 		go.y = y-(go.height/2);
-		
+		go.commit();
 		this.addChild(go);
 	},
 	
 	update: function()
 	{
-		this._super();
-		
-		if(this.x != this.targetX)
-		{
-			this.x = this.processing.lerp(this.x, this.targetX, .2);
-		}
+		return this._super();
 	},
 	
 	
@@ -91,7 +84,7 @@ var Scene = GameObject.extend({
 			return true;
 		}
 
-		this.logger.debug("no Scene children handled click. Placing block.")
+		this.logger.debug("no Scene children handled click (" + x +"," + y + ") Placing block.")
 		// No children handled the mouseClick, handle here.
 		this.placeBlock(x-this.x, y-this.y);
 		return true;
@@ -101,11 +94,11 @@ var Scene = GameObject.extend({
 	{
 		if(this.processing.keyCode == 39)
 		{
-			this.targetX+=10;
+			this.targetX+=15;
 		}
 		else if(this.processing.keyCode == 37)
 		{
-			this.targetX-=10;
+			this.targetX-=15;
 		}
 	}
 	

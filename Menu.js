@@ -17,10 +17,10 @@ var Menu = GameObject.extend({
 		this.height = this.processing.height;
 		this.width = 120;
 		this.x = this.processing.width - this.width;
-		this.targetX = this.x;
 		this.y = 0;
 		this.isOpen = true;
-
+		this.commit();
+		
 		this.selectedMenuItem = null;
 		var item = this.addMenuItem("Red", this.processing.color(255, 0, 0), null);
 		this.addMenuItem("Green", this.processing.color(0, 255, 0), null);
@@ -34,8 +34,8 @@ var Menu = GameObject.extend({
 		this.handle = new MenuHandle(this);
 		this.handle.x = 0;
 		this.handle.y = 0;
+		this.commit();
 		this.addChild(this.handle);
-		
 	},
 
 	addMenuItem: function(label, action)
@@ -43,7 +43,7 @@ var Menu = GameObject.extend({
 		var item = new MenuItem(this, label, action);
 		item.y = 10 + this.children.length * (item.height + 10);
 		item.x = (this.width - item.width)-8;
-		
+		item.commit();
 		this.addChild(item);
 		return item;
 	},
@@ -57,12 +57,7 @@ var Menu = GameObject.extend({
 	
 	update: function()
 	{
-		this._super();
-		
-		if(this.x != this.targetX)
-		{
-			this.x = this.processing.lerp(this.x, this.targetX, .2);
-		}
+		return this._super();
 	},
 
 	mouseClicked: function(x, y)

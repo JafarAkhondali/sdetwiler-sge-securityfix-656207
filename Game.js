@@ -23,8 +23,8 @@ var GameController = Class.extend({
 	{
 		this.logger.debug("Binding Processing.js");
 		this.processing = processing;
-		this.processing.width = 800;
-		this.processing.height = 600;
+		this.processing.width = window.innerWidth;
+		this.processing.height = window.innerHeight;
 
 		processing.draw = this.draw.bind(this);
 		processing.mouseClicked = this.mouseClicked.bind(this);

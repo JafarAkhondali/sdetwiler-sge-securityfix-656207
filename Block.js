@@ -12,9 +12,13 @@ var Block = GameObject.extend({
 		this.logger.scope = "Block";
 		this.width = 50;
 		this.height = 50;
+		this.commit();
 		
 		this.fillColor = this.processing.color(255,255,255);
 		this.strokeColor = this.processing.color(0,0,0);
+		this.isDestroying = false;
+		
+		this.targetFillColor = this.fillColor;
 	},
 	
 	drawObject: function()
@@ -29,10 +33,47 @@ var Block = GameObject.extend({
 		if(this.userInteractionEnabled && this.containsPoint(x, y))
 		{
 			this.logger.debug("clicked");
-			this.parent.removeChild(this);
+			this.destroy();
 			return true;
 		}
 		return false;
+	},
+	
+	update: function()
+	{
+		var changed = this._super();
+		if(this.isDestroying)
+		{
+			if(!changed)
+			{
+				this.parent.removeChild(this);
+			}
+			else
+			{
+				this.fillColor = this.processing.lerpColor(this.fillColor, this.targetFillColor, this.speed);
+			}
+		}
+		
+		return changed;
+	},
+	
+	destroy: function()
+	{
+		this.userInteractionEnabled = false;
+		this.isDestroying = true;
+		this.speed = this.targetSpeed = .4;
+		var n = 50;
+		this.targetX = this.x-n;
+		this.targetY = this.y-n;
+		this.targetWidth = this.width+(2*n);
+		this.targetHeight = this.height+(2*n);
+		
+		this.targetFillColor = this.processing.color(
+			this.processing.red(this.fillColor),
+			this.processing.green(this.fillColor),
+			this.processing.blue(this.fillColor),
+			0
+		);
 	}
 });
 

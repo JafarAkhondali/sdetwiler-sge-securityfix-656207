@@ -9,7 +9,7 @@ var BlueBlock = Block.extend({
 	init: function(parent)
 	{
 		this._super(parent);
-		this.fillColor = this.processing.color(0,0,255);
+		this.fillColor = this.processing.color(0,0,253,255);
 	}
 });
 

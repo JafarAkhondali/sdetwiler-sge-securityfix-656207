@@ -21,10 +21,23 @@ var GameObject = Class.extend({
 		this.y = 0;
 		this.width = 0;
 		this.height = 0;
+		this.speed = 0.2;
 		this.userInteractionEnabled = true;
+		this.childrenMustBeInBounds = true;	// If true, click detection only applies to children that are within the bounds of the parent.
+		
+		this.commit();
 		
 		this.children = [];
 		this.childrenToRemove = [];
+	},
+
+	commit: function()
+	{
+		this.targetX = this.x;
+		this.targetY = this.y;
+		this.targetWidth = this.width;
+		this.targetHeight = this.height;
+		this.targetSpeed = this.speed;
 	},
 
 	containsPoint: function(x, y)
@@ -47,12 +60,63 @@ var GameObject = Class.extend({
 		this.childrenToRemove.push(go);
 	},
 	
+	
+	capLerp: function(start, end, speed)
+	{
+		var n = this.processing.lerp(start, end, speed);
+		if(Math.abs(end-n) < 0.1)
+		{
+			n = end;
+		}
+		
+		return n;
+	},
+	
 	update: function()
 	{
+		var changed = false;
+		if(this.speed != this.targetSpeed)
+		{
+			this.speed = this.capLerp(this.speed, this.targetSpeed, this.speed);
+			console.log("speed changed");
+			changed = true;
+		}
+		if(this.x != this.targetX)
+		{
+			console.log(this.x);
+			this.x = this.capLerp(this.x, this.targetX, this.speed);
+
+			console.log("x changed " +  this.x);
+			changed = true;
+		}
+		if(this.y != this.targetY)
+		{
+			this.y = this.capLerp(this.y, this.targetY, this.speed);
+			console.log("y changed");
+			changed = true;
+		}
+		if(this.width != this.targetWidth)
+		{
+			this.width = this.capLerp(this.width, this.targetWidth, this.speed);
+			changed = true;
+		}
+		if(this.height != this.targetHeight)
+		{
+			this.height = this.capLerp(this.height, this.targetHeight, this.speed);
+			changed = true;
+		}
+		
+		
+		
+		
+		
 		for(var i =0; i<this.children.length; ++i)
 		{
 			var go = this.children[i];
-			go.update();
+			if(go.update())
+			{
+				changed = true;
+			}
 		}
 
 		var len = this.childrenToRemove.length;
@@ -69,7 +133,10 @@ var GameObject = Class.extend({
 		if(len > 0)
 		{
 			this.logger.debug("Removed " + len + (len==1?" child." : " children."));
+			changed = true;
 		}
+		
+		return changed;
 	},
 
 	preDraw: function()
@@ -108,7 +175,7 @@ var GameObject = Class.extend({
 	mouseClicked: function(x, y)
 	{
 		this.logger.debug("called");
-		if(this.userInteractionEnabled && this.containsPoint(x, y))
+		if(this.userInteractionEnabled && ((this.childrenMustBeInBounds && this.containsPoint(x, y)) || !this.childrenMustBeInBounds))
 		{
 			
 			// console.log(this.x + "," + this.y + "    " + loc.x + "," + loc.y);
