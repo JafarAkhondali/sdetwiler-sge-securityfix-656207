@@ -20,11 +20,12 @@ var Menu = GameObject.extend({
 		this.targetX = this.x;
 		this.y = 0;
 		this.isOpen = true;
-		
+
+		this.selectedMenuItem = null;
 		var item = this.addMenuItem("Red", this.processing.color(255, 0, 0), null);
-		this.selectMenuItem(item);
 		this.addMenuItem("Green", this.processing.color(0, 255, 0), null);
 		this.addMenuItem("Blue", this.processing.color(0, 0, 255), null);
+		this.selectMenuItem(item);
 
 		this.handle = new MenuHandle(this);
 		this.handle.x = 0;
@@ -40,7 +41,7 @@ var Menu = GameObject.extend({
 		item.x = (this.width - item.width)-8;
 		
 		this.addChild(item);
-		return this;
+		return item;
 	},
 	
 	drawObject: function()
