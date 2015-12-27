@@ -1,0 +1,16 @@
+var Block = require('./Block');
+
+///////////////////////////////////////////////////////////////////////////////
+// RedBlock
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+var RedBlock = Block.extend({
+	init: function(parent)
+	{
+		this._super(parent);
+		this.fillColor = this.processing.color(255,0,0);
+	}
+});
+
+module.exports = RedBlock;

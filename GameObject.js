@@ -29,7 +29,7 @@ var GameObject = Class.extend({
 
 	containsPoint: function(x, y)
 	{
-		this.logger.debug(x + "," + y + " in " + this.x + "," + this.y + "," + this.width + "," + this.height );
+		// this.logger.debug(x + "," + y + " in " + this.x + "," + this.y + "," + this.width + "," + this.height );
 		if((this.x <= x) && ((this.x+this.width) >=x) && (this.y <= y) && ((this.y+this.height) >= y))
 		{
 			return true;
@@ -55,17 +55,21 @@ var GameObject = Class.extend({
 			go.update();
 		}
 
+		var len = this.childrenToRemove.length;
 		for(var i =0; i<this.childrenToRemove.length; ++i)
 		{
 			var go = this.childrenToRemove[i];
 			var idx = this.children.indexOf(go);
 			if(idx >= 0)
 			{
-				this.logger.debug("Removing " + go);
 				this.children.splice(idx, 1);
 			}
 		}
 		this.childrenToRemove = [];
+		if(len > 0)
+		{
+			this.logger.debug("Removed " + len + (len==1?" child." : " children."));
+		}
 	},
 
 	preDraw: function()
@@ -99,7 +103,7 @@ var GameObject = Class.extend({
 		this.processing.popMatrix();
 	},
 	
-	// x,y are provided in the coordinate space of the parent GameObject. If no parent, they are in screen space.
+	// x,y are provided in the coordinate space of the parent GameObject.
 	// Returns true if click was handled, false if not.
 	mouseClicked: function(x, y)
 	{

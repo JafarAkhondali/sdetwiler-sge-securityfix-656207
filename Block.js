@@ -3,8 +3,6 @@ var GameObject = require('./GameObject');
 ///////////////////////////////////////////////////////////////////////////////
 // Block
 //
-// A GameObject is an item that can be placed in the game. Extend this class
-// to make specific types of objects.
 //
 ///////////////////////////////////////////////////////////////////////////////
 var Block = GameObject.extend({
@@ -19,11 +17,6 @@ var Block = GameObject.extend({
 		this.strokeColor = this.processing.color(0,0,0);
 	},
 	
-	update: function()
-	{
-		this._super();
-	},
-	
 	drawObject: function()
 	{
 		this.processing.fill(this.fillColor);
@@ -33,10 +26,9 @@ var Block = GameObject.extend({
 	
 	mouseClicked: function(x, y)
 	{
-		this.logger.debug("Block " + x + "," + y);
 		if(this.userInteractionEnabled && this.containsPoint(x, y))
 		{
-			console.log(this.parent);
+			this.logger.debug("clicked");
 			this.parent.removeChild(this);
 			return true;
 		}

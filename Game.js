@@ -1,6 +1,7 @@
 var Class = require('./Class');
 var Log = require('./Log');
-var BlockCanvas = require('./BlockCanvas');
+
+var Scene = require('./Scene');
 var Menu = require('./Menu');
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -10,7 +11,7 @@ var GameController = Class.extend({
 	init: function()
 	{
 		this._super();
-		this.logger = new Log.Logger("Game");
+		this.logger = new Log.Logger("GameController");
 		this.logger.LogMask = Log.DEBUG | Log.WARN | Log.ERROR;
 
 		this.processing = null;
@@ -30,15 +31,15 @@ var GameController = Class.extend({
 		
 		this.menu = new Menu.Menu(this);
 		
-		this.rootGameObject = new BlockCanvas(this);
-		this.rootGameObject.width = processing.width;
-		this.rootGameObject.height = processing.height;
+		this.scene = new Scene(this);
+		this.scene.width = processing.width;
+		this.scene.height = processing.height;
 	},
 	
 	update: function()
 	{
 		this.menu.update();
-		this.rootGameObject.update();
+		this.scene.update();
 	},
 	
 	draw: function()
@@ -46,10 +47,11 @@ var GameController = Class.extend({
 		this.update();
 		
 		// Clear the canvas.
+		this.processing.stroke(0, 0, 0);
 		this.processing.fill(0, 0, 0);
 		this.processing.rect(0, 0, this.processing.width, this.processing.height);
 		
-		this.rootGameObject.draw();
+		this.scene.draw();
 		this.menu.draw();
 	},
 	
@@ -62,7 +64,7 @@ var GameController = Class.extend({
 		{
 			return;
 		}
-		else if(this.rootGameObject.mouseClicked(x, y))
+		else if(this.scene.mouseClicked(x, y))
 		{
 			return;
 		}
