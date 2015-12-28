@@ -112,8 +112,6 @@ var Quadtree = Class.extend({
 	
 	split: function()
 	{
-		this.logger.debug("called");
-		
 		this.createChildren();
 		for(var i=0; i<this.objects.length; ++i)
 		{
@@ -126,7 +124,6 @@ var Quadtree = Class.extend({
 	
 	collapse: function()
 	{
-		this.logger.debug("called");
 		this.objects = [];
 		for(var i=0; i<this.children.length; ++i)
 		{
@@ -135,11 +132,10 @@ var Quadtree = Class.extend({
 		
 		this.children = null;
 	},
-
+	
 	containsPoint: function(x, y)
 	{
-		// this.logger.debug(x + "," + y + " in " + this.x + "," + this.y + "," + this.width + "," + this.height );
-		if((this.x <= x) && ((this.x+this.width) >x) && (this.y <= y) && ((this.y+this.height) > y))
+		if((this.x <= x) && ((this.x+this.width) > x) && (this.y <= y) && ((this.y+this.height) > y))
 		{
 			return true;
 		}
@@ -306,28 +302,35 @@ var Quadtree = Class.extend({
 		return changed;
 	},
 
-	
 	mouseClicked: function(x, y)
 	{
-		this.logger.debug("called");
-		if(this.userInteractionEnabled && this.containsPoint(x, y))
+		if(this.containsPoint(x, y))
 		{
-			// console.log(this.x + "," + this.y + "    " + loc.x + "," + loc.y);
-			
-			for(var i=0; i<this.objects.length; ++i)
+			if(this.children != null)
 			{
-				var o = this.objects[i];
-				if(o.mouseClicked(x-this.x, y-this.y))
+				for(var i=0; i<this.children.length; ++i)
 				{
-					return true;
+					if(this.children[i].mouseClicked(x, y) == true)
+					{
+						return true;
+					}
+				}
+			}
+			else if(this.objects != null)
+			{
+				for(var i=0; i<this.objects.length; ++i)
+				{
+					var o = this.objects[i];
+					if(o.mouseClicked(x, y))
+					{
+						return true;
+					}
 				}
 			}
 		}
 		return false;
 	},
 
-	// x,y are provided in the coordinate space of the parent GameObject.
-	// Returns true if drag was handled, false if not.
 	mouseDragged: function(x, y)
 	{
 		this.logger.debug("called");
@@ -336,7 +339,7 @@ var Quadtree = Class.extend({
 			for(var i=0; i<this.objects.length; ++i)
 			{
 				var o = this.objects[i];
-				if(o.mouseDragged(x-this.x, y-this.y))
+				if(o.mouseDragged(x, y))
 				{
 					return true;
 				}
@@ -346,11 +349,6 @@ var Quadtree = Class.extend({
 	}
 
 });
-
-Quadtree.UL = 0;
-Quadtree.UR = 1;
-Quadtree.LL = 2;
-Quadtree.LR = 3;
 
 Quadtree.MaxObjectsPerNode = 10;
 
