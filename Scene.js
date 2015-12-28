@@ -171,10 +171,19 @@ var Scene = Quadtree.extend({
 		{
 			this.targetCameraX+=15;
 		}
+		else if(this.processing.keyCode == 38)
+		{
+			this.targetCameraY-=15;
+		}
 		else if(this.processing.keyCode == 37)
 		{
 			this.targetCameraX-=15;
 		}
+		else if(this.processing.keyCode == 40)
+		{
+			this.targetCameraY+=15;
+		}
+		
 		else if(this.processing.keyCode == 68)
 		{
 			this.setDebug(!this.debug);
