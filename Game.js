@@ -33,8 +33,10 @@ var GameController = Class.extend({
 		this.menu = new Menu.Menu(this);
 		
 		this.scene = new Scene(this);
-		this.scene.width = processing.width;
-		this.scene.height = processing.height;
+		this.scene.width = Number.MAX_VALUE;
+		this.scene.height = Number.MAX_VALUE;
+		// this.scene.width = 1000;
+		// this.scene.height = 1000;
 	},
 	
 	update: function()

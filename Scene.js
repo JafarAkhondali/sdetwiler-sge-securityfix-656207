@@ -18,27 +18,26 @@ var OrangeBlock = require('./OrangeBlock');
 var Scene = Quadtree.extend({
 	init: function(parent)
 	{
-		this._super(parent, true);
+		this._super(parent);
 		this.logger.scope = "Scene";
 
 		this.fillColor = this.processing.color(255,255,255);
 		this.strokeColor = this.processing.color(0,0,0);
 		
-		this.sceneCreated = false;
+		this.cameraX = 0;
+		this.cameraY = 0;
+		this.cameraSpeed = 0.2;
+		
+		this.commit();
 	},
-			
-	createInitialScene: function()
+	
+	commit: function()
 	{
-		// this.logger.debug("called");
-		// var x = 0;
-		// var y = this.height;
-		// while(x<this.width)
-		// {
-		// 	var block = this.placeBlock(x, y);
-		// 	x+=block.width;
-		// }
-		// this.sceneCreated = true;
+		this.targetCameraX = this.cameraX;
+		this.targetCameraY = this.cameraY;
+		this.targetCameraSpeed = this.cameraSpeed;
 	},
+	
 	
 	placeBlock: function(x, y)
 	{
@@ -82,51 +81,103 @@ var Scene = Quadtree.extend({
 		return go;
 	},
 	
+	capLerp: function(start, end, speed)
+	{
+		var n = this.processing.lerp(start, end, speed);
+		if(Math.abs(end-n) < 0.1)
+		{
+			n = end;
+		}
+		
+		return n;
+	},
+
 	update: function()
 	{
 		// this.logger.debug("called");
-		var updated = this._super();
-		if(this.sceneCreated == false)
+		var changed = this._super();
+		
+		if(this.cameraSpeed != this.targetCameraSpeed)
 		{
-			this.createInitialScene();
-			updated = true;
+			this.cameraSpeed = this.capLerp(this.cameraSpeed, this.targetCameraSpeed, this.cameraSpeed);
+			changed = true;
+		}
+		if(this.cameraX != this.targetCameraX)
+		{
+			this.cameraX = this.capLerp(this.cameraX, this.targetCameraX, this.cameraSpeed);
+			changed = true;
+		}
+		if(this.cameraY != this.targetCameraY)
+		{
+			this.cameraY = this.capLerp(this.cameraY, this.targetCameraY, this.cameraSpeed);
+			changed = true;
 		}
 		
-		return updated;
+		return changed;
 	},
 	
 	mouseDragged: function(x, y)
 	{
-		if(this.getObjectAt(x-this.x, y-this.y) == null)
+		if(this.getObjectAt(x-this.cameraX, y-this.cameraY) == null)
 		{
-			this.placeBlock(x-this.x, y-this.y);
+			this.placeBlock(x-this.cameraX, y-this.cameraY);
 		}
 		return true;
+	},
+	
+	draw: function(x, y, width, height)
+	{
+		this.processing.pushMatrix();
+		this.processing.translate(this.cameraX, this.cameraY);
+		var drawCount = this._super(x-this.cameraX, y-this.cameraY, width, height);
+		this.processing.popMatrix();
+
+		if(this.debug == true)
+		{
+			this.processing.fill(255,255,255);
+			// this.processing.textFont(this.font);
+			
+			var txt ="";
+			txt+= "camera:        " + Math.round(this.cameraX) + "," + Math.round(this.cameraY) + "\n";
+			txt+= "nodes:         " + this.nodeCount() + "\n";
+			txt+= "nodes drawn:   " + drawCount[0] + "\n";
+			txt+= "objects:       " + this.objectCount() + "\n";
+			txt+= "objects drawn: " + drawCount[1] + "\n";
+			this.processing.textAlign(this.processing.LEFT, this.processing.TOP);
+			
+			this.processing.text(txt, this.processing.width-250, 0);
+		}
+		
 	},
 	
 	mouseClicked: function(x, y)
 	{
 		// Use default implementation to check if any children will handle the mouseClick.
-		if(this._super(x, y) == true)
+		if(this._super(x-this.cameraX, y-this.cameraY) == true)
 		{
 			return true;
 		}
 
 		this.logger.debug("no Scene children handled click (" + x +"," + y + ") Placing block.")
 		// No children handled the mouseClick, handle here.
-		this.placeBlock(x-this.x, y-this.y);
+		this.placeBlock(x-this.cameraX, y-this.cameraY);
 		return true;
 	},
 	
 	keyPressed: function()
 	{
+		this.logger.debug(this.processing.keyCode);
 		if(this.processing.keyCode == 39)
 		{
-			this.targetX+=15;
+			this.targetCameraX+=15;
 		}
 		else if(this.processing.keyCode == 37)
 		{
-			this.targetX-=15;
+			this.targetCameraX-=15;
+		}
+		else if(this.processing.keyCode == 68)
+		{
+			this.setDebug(!this.debug);
 		}
 	}
 	

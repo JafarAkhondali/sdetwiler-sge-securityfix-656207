@@ -6,7 +6,7 @@ var Log = require('./Log');
 //
 ///////////////////////////////////////////////////////////////////////////////
 var Quadtree = Class.extend({
-	init: function(parent, isRoot)
+	init: function(parent)
 	{
 		this._super();
 		this.parent = parent;
@@ -23,12 +23,55 @@ var Quadtree = Class.extend({
 		this.objects = [];
 		this.objectsToRemove = [];
 		
-		// if(isRoot == true)
-		// {
-		// 	this.createChildren();
-		// }
+		this.debug = false;
 	},
 
+	setDebug: function(enabled)
+	{
+		this.debug = enabled;
+		
+		if(this.children != null)
+		{
+			for(var i=0; i<this.children.length; ++i)
+			{
+				this.children[i].setDebug(enabled);
+			}
+		}
+	},
+
+	nodeCount: function()
+	{
+		var c = 0;
+		if(this.children != null)
+		{
+			c+=this.children.length;
+			for(var i=0; i<this.children.length; ++i)
+			{
+				c+= this.children[i].nodeCount();
+			}
+		}
+		
+		return c;
+	},
+
+	objectCount: function()
+	{
+		var c = 0;
+		if(this.children != null)
+		{
+			for(var i=0; i<this.children.length; ++i)
+			{
+				c+= this.children[i].objectCount();
+			}
+		}
+		else if(this.objects != null)
+		{
+			c+= this.objects.length;
+		}
+		
+		return c;
+	},
+	
 	createChildren: function()
 	{
 		this.logger.debug("called");
@@ -41,24 +84,28 @@ var Quadtree = Class.extend({
 		ul.y = this.y;
 		ul.width = halfWidth;
 		ul.height = halfHeight;
+		ul.debug = this.debug;
 		
 		var ur = new Quadtree(this);
 		ur.x = this.x+halfWidth;
 		ur.y = this.y;
 		ur.width = halfWidth;
 		ur.height = halfHeight;
+		ur.debug = this.debug;
 
 		var ll = new Quadtree(this);
 		ll.x = this.x;
 		ll.y = this.y+halfHeight;
 		ll.width = halfWidth;
 		ll.height = halfHeight;
+		ll.debug = this.debug;
 
 		var lr = new Quadtree(this);
 		lr.x = this.x+halfWidth;
 		lr.y = this.y+halfHeight;
 		lr.width = halfWidth;
 		lr.height = halfHeight;
+		lr.debug = this.debug;
 		
 		this.children = [ul,ur,ll,lr];
 	},
@@ -92,7 +139,7 @@ var Quadtree = Class.extend({
 	containsPoint: function(x, y)
 	{
 		// this.logger.debug(x + "," + y + " in " + this.x + "," + this.y + "," + this.width + "," + this.height );
-		if((this.x <= x) && ((this.x+this.width) >=x) && (this.y <= y) && ((this.y+this.height) >= y))
+		if((this.x <= x) && ((this.x+this.width) >x) && (this.y <= y) && ((this.y+this.height) > y))
 		{
 			return true;
 		}
@@ -175,18 +222,27 @@ var Quadtree = Class.extend({
 	
 	draw: function(x, y, width, height)
 	{
+		var nodesDrawn = 0;
+		var objectsDrawn = 0;
 		if(this.doesIntersect(x, y, width, height))
 		{
-			this.processing.stroke(255,255,255);
-			this.processing.noFill()
-			this.processing.rect(this.x, this.y, this.width, this.height);
-			// this.logger.debug("doesIntersect");
+			++nodesDrawn;
+			if(this.debug == true)
+			{
+				// this.logger.debug("debugdraw");
+				this.processing.stroke(255,255,255);
+				this.processing.noFill();
+				this.processing.rect(this.x, this.y, this.width, this.height);
+			}
+
 			if(this.children != null)
 			{
 				for(var i=0; i<this.children.length; ++i)
 				{
 					var c = this.children[i];
-					c.draw(x, y, width, height);
+					var d = c.draw(x, y, width, height);
+					nodesDrawn+=d[0];
+					objectsDrawn+=d[1];
 				}
 			}
 		
@@ -197,8 +253,11 @@ var Quadtree = Class.extend({
 					var o = this.objects[i];
 					o.draw();
 				}
+				objectsDrawn+=this.objects.length;
 			}
 		}
+		
+		return [nodesDrawn, objectsDrawn];
 	},
 	
 	update: function()
