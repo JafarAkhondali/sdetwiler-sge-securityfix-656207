@@ -52,7 +52,7 @@ var GameController = Class.extend({
 		this.processing.fill(0, 0, 0);
 		this.processing.rect(0, 0, this.processing.width, this.processing.height);
 		
-		this.scene.draw();
+		this.scene.draw(0,0,this.processing.width, this.processing.height);
 		this.menu.draw();
 	},
 	

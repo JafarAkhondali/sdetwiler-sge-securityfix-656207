@@ -1,4 +1,5 @@
 var GameObject = require('./GameObject');
+var Quadtree = require('./Quadtree');
 var Block = require('./Block');
 var RedBlock = require('./RedBlock');
 var GreenBlock = require('./GreenBlock');
@@ -14,23 +15,18 @@ var OrangeBlock = require('./OrangeBlock');
 // A Scene contains GameObjects.
 //
 ///////////////////////////////////////////////////////////////////////////////
-var Scene = GameObject.extend({
+var Scene = Quadtree.extend({
 	init: function(parent)
 	{
-		this._super(parent);
+		this._super(parent, true);
 		this.logger.scope = "Scene";
 
 		this.fillColor = this.processing.color(255,255,255);
 		this.strokeColor = this.processing.color(0,0,0);
-		this.childrenMustBeInBounds = false;
 		
 		this.sceneCreated = false;
 	},
-		
-	drawObject: function()
-	{
-	},
-	
+			
 	createInitialScene: function()
 	{
 		// this.logger.debug("called");
@@ -82,7 +78,7 @@ var Scene = GameObject.extend({
 		go.x = x-(go.width/2);
 		go.y = y-(go.height/2);
 		go.commit();
-		this.addChild(go);
+		this.addObject(go);
 		return go;
 	},
 	
@@ -101,7 +97,7 @@ var Scene = GameObject.extend({
 	
 	mouseDragged: function(x, y)
 	{
-		if(this.getChildAt(x-this.x, y-this.y) == null)
+		if(this.getObjectAt(x-this.x, y-this.y) == null)
 		{
 			this.placeBlock(x-this.x, y-this.y);
 		}
