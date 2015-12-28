@@ -50,6 +50,20 @@ var GameObject = Class.extend({
 		return false;
 	},
 
+	// SCD This is horrible.
+	getChildAt: function(x, y)
+	{
+		for(var i=0; i<this.children.length; ++i)
+		{
+			if(this.children[i].containsPoint(x, y))
+			{
+				return this.children[i];
+			}
+		}
+		
+		return null;
+	},
+
 	addChild: function(go)
 	{
 		this.children.push(go);
@@ -78,21 +92,16 @@ var GameObject = Class.extend({
 		if(this.speed != this.targetSpeed)
 		{
 			this.speed = this.capLerp(this.speed, this.targetSpeed, this.speed);
-			console.log("speed changed");
 			changed = true;
 		}
 		if(this.x != this.targetX)
 		{
-			console.log(this.x);
 			this.x = this.capLerp(this.x, this.targetX, this.speed);
-
-			console.log("x changed " +  this.x);
 			changed = true;
 		}
 		if(this.y != this.targetY)
 		{
 			this.y = this.capLerp(this.y, this.targetY, this.speed);
-			console.log("y changed");
 			changed = true;
 		}
 		if(this.width != this.targetWidth)

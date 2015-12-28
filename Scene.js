@@ -23,10 +23,25 @@ var Scene = GameObject.extend({
 		this.fillColor = this.processing.color(255,255,255);
 		this.strokeColor = this.processing.color(0,0,0);
 		this.childrenMustBeInBounds = false;
+		
+		this.sceneCreated = false;
 	},
 		
 	drawObject: function()
 	{
+	},
+	
+	createInitialScene: function()
+	{
+		// this.logger.debug("called");
+		// var x = 0;
+		// var y = this.height;
+		// while(x<this.width)
+		// {
+		// 	var block = this.placeBlock(x, y);
+		// 	x+=block.width;
+		// }
+		// this.sceneCreated = true;
 	},
 	
 	placeBlock: function(x, y)
@@ -63,18 +78,35 @@ var Scene = GameObject.extend({
 		}
 
 		x = Math.round(x/go.width)*go.width;
-		y = Math.round(y/go.height)*go.width;
+		y = Math.round(y/go.height)*go.height;
 		go.x = x-(go.width/2);
 		go.y = y-(go.height/2);
 		go.commit();
 		this.addChild(go);
+		return go;
 	},
 	
 	update: function()
 	{
-		return this._super();
+		// this.logger.debug("called");
+		var updated = this._super();
+		if(this.sceneCreated == false)
+		{
+			this.createInitialScene();
+			updated = true;
+		}
+		
+		return updated;
 	},
 	
+	mouseDragged: function(x, y)
+	{
+		if(this.getChildAt(x-this.x, y-this.y) == null)
+		{
+			this.placeBlock(x-this.x, y-this.y);
+		}
+		return true;
+	},
 	
 	mouseClicked: function(x, y)
 	{

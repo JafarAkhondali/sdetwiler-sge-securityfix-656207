@@ -10,8 +10,8 @@ var Block = GameObject.extend({
 	{
 		this._super(parent);
 		this.logger.scope = "Block";
-		this.width = 50;
-		this.height = 50;
+		this.width = Block.width;
+		this.height = Block.height;
 		this.commit();
 		
 		this.fillColor = this.processing.color(255,255,255);
@@ -62,7 +62,7 @@ var Block = GameObject.extend({
 		this.userInteractionEnabled = false;
 		this.isDestroying = true;
 		this.speed = this.targetSpeed = .4;
-		var n = 50;
+		var n = Block.width;
 		this.targetX = this.x-n;
 		this.targetY = this.y-n;
 		this.targetWidth = this.width+(2*n);
@@ -76,5 +76,8 @@ var Block = GameObject.extend({
 		);
 	}
 });
+
+Block.width = 20;
+Block.height = 20;
 
 module.exports = Block;

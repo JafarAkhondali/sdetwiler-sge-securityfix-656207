@@ -80,6 +80,10 @@ var GameController = Class.extend({
 		{
 			return;
 		}
+		else if(this.scene.mouseDragged(x, y))
+		{
+			return;
+		}
 	},
 	
 	keyPressed: function()
