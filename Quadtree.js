@@ -1,5 +1,6 @@
 var Class = require('./Class');
 var Log = require('./Log');
+var Block = require('./Block');
 
 ///////////////////////////////////////////////////////////////////////////////
 // Quadtree
@@ -24,6 +25,34 @@ var Quadtree = Class.extend({
 		this.objectsToRemove = [];
 		
 		this.debug = false;
+	},
+	
+	audit: function(objects)
+	{
+		if(this.children != null)
+		{
+			for(var i=0; i<this.children.length; ++i)
+			{
+				objects = this.children[i].audit(objects);
+			}
+		}
+		else if(this.objects != null)
+		{
+			for(var i=0; i<this.objects.length; ++i)
+			{
+				var o = this.objects[i];
+				if(objects.indexOf(o) < 0)
+				{
+					objects.push(o);
+				}
+				else
+				{
+					this.logger.error("Duplicate for " + o.id.toString());
+				}
+			}
+		}
+		
+		return objects;
 	},
 
 	setDebug: function(enabled)
@@ -79,47 +108,72 @@ var Quadtree = Class.extend({
 		var halfWidth = this.width/2;
 		var halfHeight = this.height/2;
 		
+		
+		// Split on boundaries that are an exact multiple of Block.Width and Block.Height.
+		// When rounding, always place extra block in upper left.
+		var blocksWidth = this.width/Block.Width;
+		var blocksHeight = this.width/Block.Height;
+		var halfBlocksWidth = blocksWidth / 2;
+		var halfBlocksHeight = blocksHeight / 2;
+
+		var ulllWidth = Math.ceil(halfBlocksWidth) * Block.Width;
+		var ulurHeight = Math.ceil(halfBlocksHeight) * Block.Height;
+
+		var urlrWidth = this.width - ulllWidth;
+		var lllrHeight = this.height - ulurHeight;
+		
+		console.log(ulllWidth, ulurHeight, urlrWidth, lllrHeight);
+		
+		if(!ulllWidth || !ulurHeight || !urlrWidth || !lllrHeight)
+		{
+			this.logger.error("Cannot create children with zero dimension.");
+			return;
+		}
+		
 		var ul = new Quadtree(this);
 		ul.x = this.x;
 		ul.y = this.y;
-		ul.width = halfWidth;
-		ul.height = halfHeight;
+		ul.width = ulllWidth;
+		ul.height = ulurHeight;
 		ul.debug = this.debug;
 		
 		var ur = new Quadtree(this);
-		ur.x = this.x+halfWidth;
+		ur.x = this.x+ulllWidth;
 		ur.y = this.y;
-		ur.width = halfWidth;
-		ur.height = halfHeight;
+		ur.width = urlrWidth;
+		ur.height = ulurHeight;
 		ur.debug = this.debug;
 
 		var ll = new Quadtree(this);
 		ll.x = this.x;
-		ll.y = this.y+halfHeight;
-		ll.width = halfWidth;
-		ll.height = halfHeight;
+		ll.y = this.y+ulllWidth;
+		ll.width = ulllWidth;
+		ll.height = lllrHeight;
 		ll.debug = this.debug;
 
 		var lr = new Quadtree(this);
-		lr.x = this.x+halfWidth;
-		lr.y = this.y+halfHeight;
-		lr.width = halfWidth;
-		lr.height = halfHeight;
+		lr.x = this.x+ulllWidth;
+		lr.y = this.y+ulurHeight;
+		lr.width = urlrWidth;
+		lr.height = lllrHeight;
 		lr.debug = this.debug;
 		
-		this.children = [ul,ur,ll,lr];
+		this.children = [ul, ur, ll, lr];
 	},
 	
 	split: function()
 	{
-		this.createChildren();
-		for(var i=0; i<this.objects.length; ++i)
-		{
-			this.addObject(this.objects[i]);
-		}
-		
+		this.logger.debug("called. Currently " + this.objects.length + " objects.");
+
+		var objects = this.objects;
 		this.objects = null;
 		this.objectsToRemove = [];
+
+		this.createChildren();
+		for(var i=0; i<objects.length; ++i)
+		{
+			this.addObject(objects[i]);
+		}
 	},
 	
 	collapse: function()
@@ -177,14 +231,14 @@ var Quadtree = Class.extend({
 			{
 				if(this.children[j].containsPoint(o.x, o.y))
 				{
-					this.children[j].addObject(o);
-					break;
+					return this.children[j].addObject(o);
 				}
 			}
 		}
 		else
 		{
 			this.objects.push(o);
+			o.parent = this;
 			if(this.objects.length > Quadtree.MaxObjectsPerNode)
 			{
 				this.split();
@@ -194,6 +248,7 @@ var Quadtree = Class.extend({
 	
 	removeObject: function(go)
 	{
+		this.logger.debug("called");
 		this.objectsToRemove.push(go);
 	},
 	
@@ -211,9 +266,9 @@ var Quadtree = Class.extend({
 		
 		
 		return (l1 <= r2 &&
-		l2 <= r1 &&
-		t1 <= b2 &&
-		t2 <= b1)
+				l2 <= r1 &&
+				t1 <= b2 &&
+				t2 <= b1);
 	},
 	
 	draw: function(x, y, width, height)
@@ -225,8 +280,19 @@ var Quadtree = Class.extend({
 			++nodesDrawn;
 			if(this.debug == true)
 			{
-				// this.logger.debug("debugdraw");
-				this.processing.stroke(255,255,255);
+				if(this.objects != null)
+				{
+					this.processing.textSize(8);
+					this.processing.stroke(255,255,255);
+					this.processing.fill(255,255,255);
+					this.processing.textAlign(this.processing.LEFT, this.processing.TOP);
+					var txt = this.x + "," + this.y + "(" + this.objects.length + ")";
+					// for(var i=0; i<this.objects.length; ++i)
+					// {
+					// 	txt+= "\n" + this.objects[i].id.toString();
+					// }
+					this.processing.text(txt, this.x, this.y);
+				}
 				this.processing.noFill();
 				this.processing.rect(this.x, this.y, this.width, this.height);
 			}
@@ -271,15 +337,6 @@ var Quadtree = Class.extend({
 		}
 		else
 		{
-			for(var i=0; i<this.objects.length; ++i)
-			{
-				var o = this.objects[i];
-				if(o.update())
-				{
-					changed = true;
-				}
-			}
-
 			var len = this.objectsToRemove.length;
 			for(var i =0; i<this.objectsToRemove.length; ++i)
 			{
@@ -291,12 +348,21 @@ var Quadtree = Class.extend({
 				}
 			}
 			this.objectsToRemove = [];
+
 			if(len > 0)
 			{
 				this.logger.debug("Removed " + len + (len==1?" object." : " objects."));
 				changed = true;
 			}
-		
+
+			for(var i=0; i<this.objects.length; ++i)
+			{
+				var o = this.objects[i];
+				if(o.update())
+				{
+					changed = true;
+				}
+			}		
 		}
 		
 		return changed;
@@ -329,25 +395,7 @@ var Quadtree = Class.extend({
 			}
 		}
 		return false;
-	},
-
-	mouseDragged: function(x, y)
-	{
-		this.logger.debug("called");
-		if(this.userInteractionEnabled && this.containsPoint(x, y))
-		{
-			for(var i=0; i<this.objects.length; ++i)
-			{
-				var o = this.objects[i];
-				if(o.mouseDragged(x, y))
-				{
-					return true;
-				}
-			}
-		}
-		return false;
 	}
-
 });
 
 Quadtree.MaxObjectsPerNode = 10;

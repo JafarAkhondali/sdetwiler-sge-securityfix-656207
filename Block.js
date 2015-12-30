@@ -1,4 +1,5 @@
 var GameObject = require('./GameObject');
+var UUID = require('./uuid-js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // Block
@@ -10,6 +11,8 @@ var Block = GameObject.extend({
 	{
 		this._super(parent);
 		this.logger.scope = "Block";
+		this.id = UUID.create();
+
 		this.width = Block.Width;
 		this.height = Block.Height;
 		this.commit();
@@ -19,6 +22,8 @@ var Block = GameObject.extend({
 		this.isDestroying = false;
 		
 		this.targetFillColor = this.fillColor;
+		
+		// this.logger.debug(this.id.toString());
 	},
 	
 	drawObject: function()
@@ -26,6 +31,16 @@ var Block = GameObject.extend({
 		this.processing.fill(this.fillColor);
 		this.processing.stroke(this.strokeColor);
 		this.processing.rect(0, 0, this.width, this.height);
+		
+		if(true)
+		{
+			this.processing.stroke(255,255,255);
+			this.processing.fill(255,255,255);
+			this.processing.textSize(8);
+			this.processing.textAlign(this.processing.LEFT, this.processing.TOP);
+			// this.processing.text(this.x + "," + this.y, 0,0);
+		}
+		
 	},
 	
 	mouseClicked: function(x, y)
