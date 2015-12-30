@@ -398,6 +398,6 @@ var Quadtree = Class.extend({
 	}
 });
 
-Quadtree.MaxObjectsPerNode = 10;
+Quadtree.MaxObjectsPerNode = 100;
 
 module.exports = Quadtree;
