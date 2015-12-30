@@ -56,6 +56,7 @@ var Block = GameObject.extend({
 	
 	update: function()
 	{
+		// this.logger.debug("called");
 		var changed = this._super();
 		if(this.isDestroying)
 		{
@@ -63,6 +64,8 @@ var Block = GameObject.extend({
 			if(!changed)
 			{
 				this.logger.debug("!changed");
+				this.x = this.ox;
+				this.y = this.oy;
 				this.parent.removeObject(this);
 			}
 			else
@@ -76,10 +79,13 @@ var Block = GameObject.extend({
 	
 	destroy: function()
 	{
+		this.logger.debug("called");
 		this.userInteractionEnabled = false;
 		this.isDestroying = true;
 		this.speed = this.targetSpeed = .4;
 		var n = Block.Width;
+		this.ox = this.x;
+		this.oy = this.y;
 		this.targetX = this.x-n;
 		this.targetY = this.y-n;
 		this.targetWidth = this.width+(2*n);

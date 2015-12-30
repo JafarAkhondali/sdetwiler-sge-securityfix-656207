@@ -1,7 +1,7 @@
 var Class = require('./Class');
 var Log = require('./Log');
 
-var Scene = require('./Scene');
+var RegionScene = require('./RegionScene');
 var Menu = require('./Menu');
 var Block = require('./Block');
 
@@ -33,7 +33,7 @@ var GameController = Class.extend({
 		processing.keyPressed = this.keyPressed.bind(this);
 		this.menu = new Menu.Menu(this);
 		
-		this.scene = new Scene(this);
+		this.scene = new RegionScene(this);
 		// this.scene.width = Number.MAX_VALUE;
 		// this.scene.height = Number.MAX_VALUE;
 		this.scene.width = 1000 * Block.Width;
