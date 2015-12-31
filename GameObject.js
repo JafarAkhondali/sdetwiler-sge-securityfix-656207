@@ -31,6 +31,11 @@ var GameObject = Class.extend({
 		this.childrenToRemove = [];
 	},
 
+	getKey: function()
+	{
+		return this.x + "," + this.y;
+	},
+
 	commit: function()
 	{
 		this.targetX = this.x;
@@ -85,8 +90,14 @@ var GameObject = Class.extend({
 		return n;
 	},
 	
+	collision: function(o)
+	{
+		this.logger.debug("called");
+	},
+	
 	update: function()
 	{
+		var currKey = this.getKey();
 		var changed = false;
 		if(this.speed != this.targetSpeed)
 		{
@@ -114,7 +125,15 @@ var GameObject = Class.extend({
 			changed = true;
 		}
 		
-		
+		if(changed)
+		{
+			var newKey = this.getKey();
+			if(currKey != newKey)
+			{
+				// console.log(this);
+				this.parent.parent.moveObject(currKey, newKey);
+			}
+		}
 		
 		
 		

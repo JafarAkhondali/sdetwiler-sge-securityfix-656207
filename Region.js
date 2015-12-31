@@ -20,7 +20,7 @@ var Region = Class.extend({
 		this.height = Region.Height;
 
 		this.objects = {};
-		this.objectsToRemove = [];
+		this.objectKeysToRemove = [];
 		
 		this.debug = false;
 	},
@@ -86,20 +86,20 @@ var Region = Class.extend({
 
 	addObject: function(o)
 	{
-		var key = o.x + "," + o.y;
-		this.logger.debug("called key:" + key);
+		var key = o.getKey();
+		// this.logger.debug("called key:" + key);
 		if(key in this.objects)
 		{
-			this.logger.warning("Replacing object at " + key);
+			this.logger.warn("Replacing object at " + key);
 		}
 		this.objects[key] = o;
 		o.parent = this;
 	},
 	
-	removeObject: function(o)
+	removeObject: function(key)
 	{
 		// this.logger.debug("called key:" + o.x + "," + o.y);
-		this.objectsToRemove.push(o);
+		this.objectKeysToRemove.push(key);
 	},
 	
 	doesIntersect: function(x1, y1, w1, h1)
@@ -156,24 +156,21 @@ var Region = Class.extend({
 	update: function()
 	{
 		var changed = false;
-		var len = this.objectsToRemove.length;
-		for(var i =0; i<this.objectsToRemove.length; ++i)
+		var len = this.objectKeysToRemove.length;
+		for(var i =0; i<this.objectKeysToRemove.length; ++i)
 		{
-			var o = this.objectsToRemove[i];
-			var key = o.x + "," + o.y;
+			var key = this.objectKeysToRemove[i];
 			if(key in this.objects)
 			{
-				this.objects[key] = null;
 				delete this.objects[key];
 				// this.logger.debug("deleted object key:" + key);
 			}
 			else
 			{
-				console.log(this.objects);
-				this.logger.error("object in objectsToRemove but not in objects key:" + key);
+				this.logger.warn("key in objectKeysToRemove but not in objects key:" + key);
 			}
 		}
-		this.objectsToRemove = [];
+		this.objectKeysToRemove = [];
 
 		if(len > 0)
 		{
@@ -287,7 +284,7 @@ var RegionIndex = Class.extend({
 	createRegion: function(x, y)
 	{
 		this.logger.debug("called");
-		var region = new Region(this.parent);
+		var region = new Region(this);
 		region.x = x;
 		region.y = y;
 		region.debug = this.debug;
@@ -348,6 +345,31 @@ var RegionIndex = Class.extend({
 		return region.addObject(o);
 	},
 	
+	moveObject: function(currKey, newKey)
+	{
+		var currxy = currKey.split(",");
+		var newxy = newKey.split(",");
+		var currRegion = this.getRegion(currxy[0], currxy[1]);
+		var newRegion = this.getRegion(newxy[0], newxy[1]);
+		
+		var o = currRegion.getObjectAt(currxy[0], currxy[1]);
+		if(o == null)
+		{
+			this.logger.error("can't move object. None exists at currKey: " + currKey + " dest was " + newKey);
+		}
+		var blockingObject = newRegion.getObjectAt(newxy[0], newxy[1]);
+		if(blockingObject != null)
+		{
+			o.collision(blockingObject);
+			return false;
+		}
+		
+		newRegion.addObject(o);
+		currRegion.removeObject(currKey);
+		// this.logger.debug("moved from " + currKey + " to " + newKey);
+		return true;
+	},
+	
 	objectCount: function()
 	{
 		var c = 0;
@@ -359,10 +381,11 @@ var RegionIndex = Class.extend({
 		return c;
 	},
 
-	removeObject: function(o)
+	removeObject: function(key)
 	{
-		var region = this.getRegion(o.x, o.y);
-		region.removeObject(o);
+		var xy = key.split(",")
+		var region = this.getRegion(xy[0], xy[1]);
+		region.removeObject(key);
 	}
 	
 });

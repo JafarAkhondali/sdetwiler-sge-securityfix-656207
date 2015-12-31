@@ -66,33 +66,6 @@ var RegionScene = Region.RegionIndex.extend({
 		{
 			this.logger.error("No block registered for type " + this.parent.menu.selectedMenuItem.label);
 		}
-		// switch(this.parent.menu.selectedMenuItem.label)
-		// {
-		// case "Red":
-		// 	go = new RedBlock(this);
-		// 	break;
-		// case "Green":
-		// 	go = new GreenBlock(this);
-		// 	break;
-		// case "Blue":
-		// 	go = new BlueBlock(this);
-		// 	break;
-		// case "Brown":
-		// 	go = new BrownBlock(this);
-		// 	break;
-		// case "White":
-		// 	go = new WhiteBlock(this);
-		// 	break;
-		// case "Yellow":
-		// 	go = new YellowBlock(this);
-		// 	break;
-		// case "Orange":
-		// 	go = new OrangeBlock(this);
-		// 	break;
-		// default:
-		// 	go = new Block(this);
-		// }
-
 		return go;
 	},
 	

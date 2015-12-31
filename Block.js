@@ -1,5 +1,5 @@
 var GameObject = require('./GameObject');
-var UUID = require('./uuid-js');
+// var UUID = require('./uuid-js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // Block
@@ -11,7 +11,7 @@ var Block = GameObject.extend({
 	{
 		this._super(parent);
 		this.logger.scope = "Block";
-		this.id = UUID.create();
+		// this.id = UUID.create();
 		this.type = null;
 		this.width = Block.Width;
 		this.height = Block.Height;
@@ -26,6 +26,14 @@ var Block = GameObject.extend({
 		// this.logger.debug(this.id.toString());
 	},
 	
+	getKey: function()
+	{
+		var x = Math.floor(this.x/Block.Width)*Block.Width;
+		var y = Math.floor(this.y/Block.Height)*Block.Height;
+		
+		return x + "," + y;
+	},
+	
 	save: function()
 	{
 		return {type:this.type};
@@ -37,13 +45,13 @@ var Block = GameObject.extend({
 		this.processing.stroke(this.strokeColor);
 		this.processing.rect(0, 0, this.width, this.height);
 		
-		if(true)
+		if(false)
 		{
 			this.processing.stroke(255,255,255);
 			this.processing.fill(255,255,255);
 			this.processing.textSize(8);
 			this.processing.textAlign(this.processing.LEFT, this.processing.TOP);
-			// this.processing.text(this.x + "," + this.y, 0,0);
+			this.processing.text(this.x + "," + this.y, 0,0);
 		}
 		
 	},
@@ -69,9 +77,9 @@ var Block = GameObject.extend({
 			if(!changed)
 			{
 				this.logger.debug("!changed");
-				this.x = this.ox;
-				this.y = this.oy;
-				this.parent.removeObject(this);
+				// this.x = this.ox;
+				// this.y = this.oy;
+				this.parent.removeObject(this.getKey());
 			}
 			else
 			{
