@@ -1,5 +1,5 @@
 var GameObject = require('./GameObject');
-var Quadtree = require('./Quadtree');
+var Region = require('./Region');
 var Block = require('./Block');
 var RedBlock = require('./RedBlock');
 var GreenBlock = require('./GreenBlock');
@@ -15,7 +15,7 @@ var OrangeBlock = require('./OrangeBlock');
 // A Scene contains GameObjects.
 //
 ///////////////////////////////////////////////////////////////////////////////
-var Scene = Quadtree.extend({
+var Scene = Region.RegionIndex.extend({
 	init: function(parent)
 	{
 		this._super(parent);
@@ -28,6 +28,8 @@ var Scene = Quadtree.extend({
 		this.cameraY = 0;
 		this.cameraSpeed = 0.2;
 		
+		this.paused = false;
+		
 		this.commit();
 	},
 	
@@ -38,6 +40,11 @@ var Scene = Quadtree.extend({
 		this.targetCameraSpeed = this.cameraSpeed;
 	},
 	
+	togglePause: function()
+	{
+		this.logger.debug("called");
+		this.paused = !this.paused;
+	},
 	
 	placeBlock: function(x, y)
 	{
@@ -54,37 +61,18 @@ var Scene = Quadtree.extend({
 		
 		// HACK
 		// console.log(this.parent.menu.selectedMenuItem.label);
-		switch(this.parent.menu.selectedMenuItem.label)
+		go = Block.createBlock(this.parent.menu.selectedMenuItem.label, this, null);
+		if(go != null)
 		{
-		case "Red":
-			go = new RedBlock(this);
-			break;
-		case "Green":
-			go = new GreenBlock(this);
-			break;
-		case "Blue":
-			go = new BlueBlock(this);
-			break;
-		case "Brown":
-			go = new BrownBlock(this);
-			break;
-		case "White":
-			go = new WhiteBlock(this);
-			break;
-		case "Yellow":
-			go = new YellowBlock(this);
-			break;
-		case "Orange":
-			go = new OrangeBlock(this);
-			break;
-		default:
-			go = new Block(this);
+			go.x = x;
+			go.y = y;
+			go.commit();
+			this.addObject(go);
 		}
-
-		go.x = x;
-		go.y = y;
-		go.commit();
-		this.addObject(go);
+		else
+		{
+			this.logger.error("No block registered for type " + this.parent.menu.selectedMenuItem.label);
+		}
 		return go;
 	},
 	
@@ -101,6 +89,11 @@ var Scene = Quadtree.extend({
 
 	update: function()
 	{
+		if(this.paused)
+		{
+			return false;
+		}
+
 		// this.logger.debug("called");
 		var changed = this._super();
 		
@@ -135,6 +128,16 @@ var Scene = Quadtree.extend({
 	
 	draw: function(x, y, width, height)
 	{
+		if(this.paused)
+		{
+			return;
+		}
+		
+		// Clear the canvas.
+		this.processing.stroke(0, 0, 0);
+		this.processing.fill(0, 0, 0);
+		this.processing.rect(0, 0, this.processing.width, this.processing.height);
+		
 		this.processing.pushMatrix();
 		this.processing.translate(this.cameraX, this.cameraY);
 		var drawCount = this._super(x-this.cameraX, y-this.cameraY, width, height);
@@ -145,8 +148,6 @@ var Scene = Quadtree.extend({
 			
 			var txt ="";
 			txt+= "camera:        " + Math.round(this.cameraX) + "," + Math.round(this.cameraY) + "\n";
-			txt+= "nodes:         " + this.nodeCount() + "\n";
-			txt+= "nodes drawn:   " + drawCount[0] + "\n";
 			txt+= "objects:       " + this.objectCount() + "\n";
 			txt+= "objects drawn: " + drawCount[1] + "\n";
 
@@ -166,7 +167,7 @@ var Scene = Quadtree.extend({
 			return true;
 		}
 
-		this.logger.debug("no Scene children handled click (" + x +"," + y + ") Placing block.")
+		// this.logger.debug("no Scene children handled click (" + x +"," + y + ") Placing block.")
 		// No children handled the mouseClick, handle here.
 		var o = this.placeBlock(x-this.cameraX, y-this.cameraY);
 		// if(o != null)
@@ -196,16 +197,35 @@ var Scene = Quadtree.extend({
 			this.targetCameraY-=15;
 		}
 		
-		
+		// d
 		else if(this.processing.keyCode == 68)
 		{
 			this.setDebug(!this.debug);
 		}
-		else if(this.processing.keyCode == 65)
+		
+		// s
+		else if(this.processing.keyCode == 83)
 		{
-			this.logger.debug("audit beginning");
-			this.audit([]);
-			this.logger.debug("audit complete");
+			this.save();
+		}
+
+		// l
+		else if(this.processing.keyCode == 76)
+		{
+			this.load();
+		}
+
+		// c
+		else if(this.processing.keyCode == 67)
+		{
+			this.clear();
+		}
+		
+		
+		// p
+		else if(this.processing.keyCode == 80)
+		{
+			this.togglePause();
 		}
 		
 	}
