@@ -10,7 +10,9 @@ var BrownBlock = Block.extend({
 	{
 		this._super(parent);
 		this.fillColor = this.processing.color(139, 69, 19);
+		this.type = BrownBlock.Type;
 	}
 });
-
+BrownBlock.Type = "Brown";
+Block.registerBlock(BrownBlock);
 module.exports = BrownBlock;

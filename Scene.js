@@ -207,6 +207,7 @@ var Scene = Quadtree.extend({
 			this.audit([]);
 			this.logger.debug("audit complete");
 		}
+		
 	}
 	
 });

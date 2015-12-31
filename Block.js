@@ -12,7 +12,7 @@ var Block = GameObject.extend({
 		this._super(parent);
 		this.logger.scope = "Block";
 		this.id = UUID.create();
-
+		this.type = null;
 		this.width = Block.Width;
 		this.height = Block.Height;
 		this.commit();
@@ -24,6 +24,11 @@ var Block = GameObject.extend({
 		this.targetFillColor = this.fillColor;
 		
 		// this.logger.debug(this.id.toString());
+	},
+	
+	save: function()
+	{
+		return {type:this.type};
 	},
 	
 	drawObject: function()
@@ -102,5 +107,22 @@ var Block = GameObject.extend({
 
 Block.Width = 20;
 Block.Height = 20;
+
+Block.BlocksByType = {};
+Block.registerBlock = function(block)
+{
+	Block.BlocksByType[block.Type] = block;
+};
+
+Block.createBlock = function(type, parent, data)
+{
+	var T = Block.BlocksByType[type];
+	if(T)
+	{
+		return new T(parent, data);
+	}
+	
+	return null;
+}
 
 module.exports = Block;

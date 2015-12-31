@@ -25,6 +25,34 @@ var Region = Class.extend({
 		this.debug = false;
 	},
 	
+	save: function()
+	{
+		var objects = {};
+		for(var key in this.objects)
+		{
+			objects[key] = this.objects[key].save();
+		}
+		
+		return objects;
+	},
+	
+	load: function(data)
+	{
+		this.logger.debug("called");
+		console.log(data);	
+		for(var k in data)
+		{
+			var xy = k.split(",");
+			var blockData = data[k];
+			var block = Block.createBlock(blockData.type, this, blockData);
+			block.x = parseInt(xy[0]);
+			block.y = parseInt(xy[1]);
+			block.commit();
+			console.log(block);
+			this.addObject(block);
+		}
+	},
+	
 	setDebug: function(enabled)
 	{
 		this.debug = enabled;
@@ -59,7 +87,7 @@ var Region = Class.extend({
 	addObject: function(o)
 	{
 		var key = o.x + "," + o.y;
-		// this.logger.debug("called key:" + key);
+		this.logger.debug("called key:" + key);
 		if(key in this.objects)
 		{
 			this.logger.warning("Replacing object at " + key);
@@ -181,8 +209,8 @@ var Region = Class.extend({
 	}
 });
 
-Region.Width = Block.Width * 100;
-Region.Height = Block.Height * 100;
+Region.Width = Block.Width * 20;
+Region.Height = Block.Height * 20;
 
 
 
@@ -202,6 +230,40 @@ var RegionIndex = Class.extend({
 		this.regions = {};
 		
 		this.debug = false;
+	},
+	
+	save: function()
+	{
+		this.logger.debug("called");
+		var regions = {};
+		for(var key in this.regions)
+		{
+			regions[key] = this.regions[key].save();
+		}
+		var data = JSON.stringify({regions:regions});
+		console.log(data);
+		localStorage.setItem("sge_save", data)
+	},
+	
+	clear: function()
+	{
+		this.logger.debug("called");
+		this.regions = {};
+	},
+	
+	load: function()
+	{
+		this.logger.debug("called");
+		var data = localStorage.getItem("sge_save");
+		data = JSON.parse(data);
+		console.log(data);
+		for(var k in data.regions)
+		{
+			var regionData = data.regions[k];
+			var xy = k.split(",");
+			var region = this.getRegion(parseInt(xy[0]), parseInt(xy[1]));
+			region.load(regionData);
+		}
 	},
 	
 	getRegion: function(x, y)

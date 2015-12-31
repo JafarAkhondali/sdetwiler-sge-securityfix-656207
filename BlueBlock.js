@@ -10,7 +10,9 @@ var BlueBlock = Block.extend({
 	{
 		this._super(parent);
 		this.fillColor = this.processing.color(0,128,255);
+		this.type = BlueBlock.Type;
 	}
 });
-
+BlueBlock.Type = "Blue";
+Block.registerBlock(BlueBlock);
 module.exports = BlueBlock;

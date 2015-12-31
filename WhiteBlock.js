@@ -10,7 +10,9 @@ var WhiteBlock = Block.extend({
 	{
 		this._super(parent);
 		this.fillColor = this.processing.color(255, 255, 255);
+		this.type = WhiteBlock.Type;
 	}
 });
-
+WhiteBlock.Type = "White";
+Block.registerBlock(WhiteBlock);
 module.exports = WhiteBlock;

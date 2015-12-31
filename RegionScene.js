@@ -54,37 +54,45 @@ var RegionScene = Region.RegionIndex.extend({
 		
 		// HACK
 		// console.log(this.parent.menu.selectedMenuItem.label);
-		switch(this.parent.menu.selectedMenuItem.label)
+		go = Block.createBlock(this.parent.menu.selectedMenuItem.label, this, null);
+		if(go != null)
 		{
-		case "Red":
-			go = new RedBlock(this);
-			break;
-		case "Green":
-			go = new GreenBlock(this);
-			break;
-		case "Blue":
-			go = new BlueBlock(this);
-			break;
-		case "Brown":
-			go = new BrownBlock(this);
-			break;
-		case "White":
-			go = new WhiteBlock(this);
-			break;
-		case "Yellow":
-			go = new YellowBlock(this);
-			break;
-		case "Orange":
-			go = new OrangeBlock(this);
-			break;
-		default:
-			go = new Block(this);
+			go.x = x;
+			go.y = y;
+			go.commit();
+			this.addObject(go);
 		}
+		else
+		{
+			this.logger.error("No block registered for type " + this.parent.menu.selectedMenuItem.label);
+		}
+		// switch(this.parent.menu.selectedMenuItem.label)
+		// {
+		// case "Red":
+		// 	go = new RedBlock(this);
+		// 	break;
+		// case "Green":
+		// 	go = new GreenBlock(this);
+		// 	break;
+		// case "Blue":
+		// 	go = new BlueBlock(this);
+		// 	break;
+		// case "Brown":
+		// 	go = new BrownBlock(this);
+		// 	break;
+		// case "White":
+		// 	go = new WhiteBlock(this);
+		// 	break;
+		// case "Yellow":
+		// 	go = new YellowBlock(this);
+		// 	break;
+		// case "Orange":
+		// 	go = new OrangeBlock(this);
+		// 	break;
+		// default:
+		// 	go = new Block(this);
+		// }
 
-		go.x = x;
-		go.y = y;
-		go.commit();
-		this.addObject(go);
 		return go;
 	},
 	
@@ -205,6 +213,22 @@ var RegionScene = Region.RegionIndex.extend({
 			this.audit([]);
 			this.logger.debug("audit complete");
 		}
+		
+		else if(this.processing.keyCode == 83)
+		{
+			this.save();
+		}
+
+		else if(this.processing.keyCode == 76)
+		{
+			this.load();
+		}
+
+		else if(this.processing.keyCode == 67)
+		{
+			this.clear();
+		}
+		
 	}
 	
 });

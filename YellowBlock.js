@@ -10,7 +10,9 @@ var YellowBlock = Block.extend({
 	{
 		this._super(parent);
 		this.fillColor = this.processing.color(255, 255, 0);
+		this.type = YellowBlock.Type;
 	}
 });
-
+YellowBlock.Type = "Yellow";
+Block.registerBlock(YellowBlock);
 module.exports = YellowBlock;
