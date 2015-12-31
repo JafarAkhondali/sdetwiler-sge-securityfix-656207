@@ -1,5 +1,6 @@
-var GameObject = require('./GameObject');
 var Region = require('./Region');
+var GameObject = require('./GameObject');
+var TemplateObject = require('./TemplateObject');
 var Block = require('./Block');
 var RedBlock = require('./RedBlock');
 var GreenBlock = require('./GreenBlock');
@@ -61,7 +62,18 @@ var Scene = Region.RegionIndex.extend({
 		
 		// HACK
 		// console.log(this.parent.menu.selectedMenuItem.label);
-		go = Block.createBlock(this.parent.menu.selectedMenuItem.label, this, null);
+		
+		if(this.parent.menu.selectedMenuItem.label == "Villageacon")
+		{
+			var villageacon = '{"40,20":{"type":"White"},"20,20":{"type":"White"},"40,40":{"type":"White"},"60,20":{"type":"White"},"0,60":{"type":"White"},"20,60":{"type":"White"},"40,60":{"type":"White"},"60,60":{"type":"White"},"80,60":{"type":"White"},"80,80":{"type":"White"},"40,80":{"type":"White"},"0,80":{"type":"White"},"40,0":{"type":"Orange"},"80,20":{"type":"Red"},"0,20":{"type":"Red"}}';
+			var data = JSON.parse(villageacon);
+			go = new TemplateObject(this, data);
+		}
+		else
+		{
+			go = Block.createBlock(this.parent.menu.selectedMenuItem.label, this, null);
+		}
+		
 		if(go != null)
 		{
 			go.x = x;
@@ -207,6 +219,12 @@ var Scene = Region.RegionIndex.extend({
 		else if(this.processing.keyCode == 83)
 		{
 			this.save();
+		}
+
+		// t
+		else if(this.processing.keyCode == 84)
+		{
+			this.saveAsTemplate();
 		}
 
 		// l

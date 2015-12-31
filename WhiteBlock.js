@@ -17,7 +17,7 @@ var WhiteBlock = Block.extend({
 	},
 	update: function()
 	{
-		this.targetX = this.x+(Block.Width * this.direction);
+		//this.targetX = this.x+(Block.Width * this.direction);
 		var changed = this._super();
 		
 		return changed;

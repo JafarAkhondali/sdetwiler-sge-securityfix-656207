@@ -231,6 +231,15 @@ var RegionIndex = Class.extend({
 		this.debug = false;
 	},
 	
+	saveAsTemplate: function()
+	{
+		this.logger.debug("called");
+		var region = this.getRegion(0,0);
+		var data = region.save();
+		var data = JSON.stringify(data);
+		console.log(data);
+	},
+	
 	save: function()
 	{
 		this.logger.debug("called");
