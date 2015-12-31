@@ -25,7 +25,7 @@ var WhiteBlock = Block.extend({
 	
 	collision: function(o)
 	{
-		this.logger.debug("called");
+		// this.logger.debug("called");
 		if(this.direction == 1)
 		{
 			this.direction = -1;

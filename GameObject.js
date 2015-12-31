@@ -1,6 +1,7 @@
 var Class = require('./Class');
 var Log = require('./Log');
 var Vector2d = require('./Vector2d');
+var Key = require('./Key');
 
 ///////////////////////////////////////////////////////////////////////////////
 // GameObject
@@ -33,7 +34,10 @@ var GameObject = Class.extend({
 
 	getKey: function()
 	{
-		return this.x + "," + this.y;
+		var key = new Key();
+		key.x = this.x;
+		key.y = this.y;
+		return key;
 	},
 
 	commit: function()

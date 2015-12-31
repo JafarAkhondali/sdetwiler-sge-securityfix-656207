@@ -1,4 +1,5 @@
 var GameObject = require('./GameObject');
+var Key = require('./Key');
 // var UUID = require('./uuid-js');
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,10 +29,10 @@ var Block = GameObject.extend({
 	
 	getKey: function()
 	{
-		var x = Math.floor(this.x/Block.Width)*Block.Width;
-		var y = Math.floor(this.y/Block.Height)*Block.Height;
-		
-		return x + "," + y;
+		var key = new Key();
+		key.x = Math.floor(this.x/Block.Width)*Block.Width;
+		key.y = Math.floor(this.y/Block.Height)*Block.Height;
+		return key;
 	},
 	
 	save: function()

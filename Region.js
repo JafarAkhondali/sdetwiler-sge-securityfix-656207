@@ -1,32 +1,12 @@
 var Class = require('./Class');
 var Log = require('./Log');
 var Block = require('./Block');
+var Key = require('./Key');
 
 ///////////////////////////////////////////////////////////////////////////////
 // Region
 //
 ///////////////////////////////////////////////////////////////////////////////
-var Key = Class.extend({
-	init: function()
-	{
-		this._super();
-		this.x = null;
-		this.y = null;
-	},
-	
-	toString: function()
-	{
-		return this.x + "," + this.y;
-	},
-	
-	fromString:function(s)
-	{
-		var xy = s.split(",");
-		this.x = parseInt(xy[0]);
-		this.y = parseInt(xy[1]);
-	}
-});
-
 var Region = Class.extend({
 	init: function(parent)
 	{
@@ -63,11 +43,12 @@ var Region = Class.extend({
 		console.log(data);	
 		for(var k in data)
 		{
-			var xy = k.split(",");
+			var key = new Key();
+			key.fromString(k);
 			var blockData = data[k];
 			var block = Block.createBlock(blockData.type, this, blockData);
-			block.x = parseInt(xy[0]);
-			block.y = parseInt(xy[1]);
+			block.x = key.x;
+			block.y = key.y;
 			block.commit();
 			console.log(block);
 			this.addObject(block);
@@ -107,7 +88,7 @@ var Region = Class.extend({
 
 	addObject: function(o)
 	{
-		var key = o.getKey();
+		var key = o.getKey().toString();
 		// this.logger.debug("called key:" + key);
 		if(key in this.objects)
 		{
@@ -120,7 +101,7 @@ var Region = Class.extend({
 	removeObject: function(key)
 	{
 		// this.logger.debug("called key:" + o.x + "," + o.y);
-		this.objectKeysToRemove.push(key);
+		this.objectKeysToRemove.push(key.toString());
 	},
 	
 	doesIntersect: function(x1, y1, w1, h1)
@@ -195,7 +176,7 @@ var Region = Class.extend({
 
 		if(len > 0)
 		{
-			this.logger.debug("Removed " + len + (len==1?" object." : " objects."));
+			// this.logger.debug("Removed " + len + (len==1?" object." : " objects."));
 			changed = true;
 		}
 
@@ -369,10 +350,6 @@ var RegionIndex = Class.extend({
 	getOccupiedKeys: function(x, y, width, height)
 	{
 		// this.logger.debug("called");
-		x = parseInt(x);
-		y = parseInt(y);
-		width = parseInt(width);
-		height = parseInt(height);
 		var keys = [];
 		var sx = Math.floor(x/Block.Width)*Block.Width;
 		var sy = Math.floor(y/Block.Height)*Block.Height;
@@ -393,7 +370,6 @@ var RegionIndex = Class.extend({
 				}
 			}
 		}
-		
 		return keys;
 	},
 	
@@ -420,17 +396,6 @@ var RegionIndex = Class.extend({
 		// this.logger.debug("called");
 		// console.log(ax, ay, aw, ah, bx, by, bw, bh);
 		
-		ax = parseInt(ax);
-		ay = parseInt(ay);
-		aw = parseInt(aw);
-		ah = parseInt(ah);
-
-		bx = parseInt(bx);
-		by = parseInt(by);
-		bw = parseInt(bw);
-		bh = parseInt(bh);
-
-		
 		var aex = ax + aw;
 		var aey = ay + ah;
 		
@@ -446,7 +411,7 @@ var RegionIndex = Class.extend({
 		var width = ex - x;
 		var height = ey - y;
 		
-		var bb = [parseInt(x), parseInt(y), parseInt(width), parseInt(height)];
+		var bb = [x, y, width, height];
 		// console.log(bb);
 		return bb;
 	},
@@ -456,23 +421,21 @@ var RegionIndex = Class.extend({
 	{
 		// this.logger.debug("called");
 		// console.log(currKey, newKey);
-		var currxy = currKey.split(",");
-		var newxy = newKey.split(",");
 		
-		var currRegion = this.getRegion(currxy[0], currxy[1]);
-		var newRegion = this.getRegion(newxy[0], newxy[1]);
+		var currRegion = this.getRegion(currKey.x, currKey.y);
+		var newRegion = this.getRegion(newKey.x, newKey.y);
 		
-		var o = currRegion.getObjectAt(currxy[0], currxy[1]);
+		var o = currRegion.getObjectAt(currKey.x, currKey.y);
 		if(o == null)
 		{
-			this.logger.error("can't move object. None exists at currKey: " + currKey + " dest was " + newKey);
+			this.logger.error("can't move object. None exists at currKey: " + currKey.toString() + " dest was " + newKey.toString());
 		}
 		
 		// Get all keys occupied by the object to be moved.
 		// Using key's xy value because the objet itself has likely already moved. (???)
-		var startOccupiedKeys = this.getOccupiedKeys(currxy[0], currxy[1], o.width, o.height);
+		var startOccupiedKeys = this.getOccupiedKeys(currKey.x, currKey.y, o.width, o.height);
 		// Find the bounding box that occupies the entire movement.
-		var totalBounds = this.getBoundingBox(currxy[0], currxy[1], o.width, o.height, o.x, o.y, o.width, o.height);
+		var totalBounds = this.getBoundingBox(currKey.x, currKey.y, o.width, o.height, o.x, o.y, o.width, o.height);
 		// Find all keys inside the total bounds.
 		var totalOccupiedKeys = this.getOccupiedKeys(totalBounds[0], totalBounds[1], totalBounds[2], totalBounds[3]);
 		// Find the keys that are newly occupied during the move. Don't need to check keys that were already occupied.
@@ -481,8 +444,10 @@ var RegionIndex = Class.extend({
 		for(var i=0; i<keys.length; ++i)
 		{
 			var xy = keys[i].split(",");
+			var kx = parseInt(xy[0]);
+			var ky = parseInt(xy[1]);
 			
-			var blockingObject = this.getObjectAt(parseInt(xy[0]), parseInt(xy[1]));
+			var blockingObject = this.getObjectAt(kx, ky);
 			if(blockingObject != null)
 			{
 				o.collision(blockingObject);
@@ -490,7 +455,7 @@ var RegionIndex = Class.extend({
 			}
 		}
 		
-		if(o.getKey() != currKey)
+		if(o.getKey() != currKey.toString())
 		{
 			newRegion.addObject(o);
 			currRegion.removeObject(currKey);
@@ -513,9 +478,8 @@ var RegionIndex = Class.extend({
 
 	removeObject: function(key)
 	{
-		var xy = key.split(",")
-		var region = this.getRegion(xy[0], xy[1]);
-		region.removeObject(key);
+		var region = this.getRegion(key.x, key.y);
+		region.removeObject(key.x. key.y);
 	}
 	
 });
@@ -524,5 +488,4 @@ var RegionIndex = Class.extend({
 R = {};
 R.Region = Region;
 R.RegionIndex = RegionIndex;
-R.Key = Key;
 module.exports = R;
