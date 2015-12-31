@@ -54,6 +54,26 @@ var GameObject = Class.extend({
 		return false;
 	},
 
+	doesIntersect: function(o)
+	{
+		var l1 = o.x;
+		var r1 = o.x+o.width;
+		var t1 = o.y;
+		var b1 = o.y+o.height;
+
+		var l2 = this.x;
+		var r2 = this.x+this.width;
+		var t2 = this.y;
+		var b2 = this.y+this.height;
+		
+		
+		return (l1 <= r2 &&
+				l2 <= r1 &&
+				t1 <= b2 &&
+				t2 <= b1);
+	},
+
+
 	// SCD This is horrible.
 	getChildAt: function(x, y)
 	{
