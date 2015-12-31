@@ -6,6 +6,27 @@ var Block = require('./Block');
 // Region
 //
 ///////////////////////////////////////////////////////////////////////////////
+var Key = Class.extend({
+	init: function()
+	{
+		this._super();
+		this.x = null;
+		this.y = null;
+	},
+	
+	toString: function()
+	{
+		return this.x + "," + this.y;
+	},
+	
+	fromString:function(s)
+	{
+		var xy = s.split(",");
+		this.x = parseInt(xy[0]);
+		this.y = parseInt(xy[1]);
+	}
+});
+
 var Region = Class.extend({
 	init: function(parent)
 	{
@@ -345,10 +366,99 @@ var RegionIndex = Class.extend({
 		return region.addObject(o);
 	},
 	
+	getOccupiedKeys: function(x, y, width, height)
+	{
+		// this.logger.debug("called");
+		x = parseInt(x);
+		y = parseInt(y);
+		width = parseInt(width);
+		height = parseInt(height);
+		var keys = [];
+		var sx = Math.floor(x/Block.Width)*Block.Width;
+		var sy = Math.floor(y/Block.Height)*Block.Height;
+
+		var ex = Math.floor(((x+width)/Block.Width)*Block.Width);
+		var ey = Math.floor(((y+height)/Block.Height)*Block.Height);
+		
+		// console.log(sx,sy,ex,ey);
+
+		for(var cy=sy; cy<ey; cy+=Block.Height)
+		{
+			for(var cx=sx; cx<ex; cx+=Block.Width)
+			{
+				var key = cx + "," + cy;
+				if(keys.indexOf(key) < 0)
+				{
+					keys.push(key);
+				}
+			}
+		}
+		
+		return keys;
+	},
+	
+	// Returns the items that are in b but not in a.
+	arrayDifference: function(a, b)
+	{
+		// this.logger.debug("called");
+		// console.log(a,b);
+		var diff = [];
+		for(var i=0; i<b.length; ++i)
+		{
+			if(a.indexOf(b[i]) < 0)
+			{
+				diff.push(b[i]);
+			}
+		}
+		// console.log(diff);
+		return diff;
+	},
+	
+	// Returns the axis aligned bounding box that contains both objects a and b.
+	getBoundingBox: function(ax, ay, aw, ah, bx, by, bw, bh)
+	{
+		// this.logger.debug("called");
+		// console.log(ax, ay, aw, ah, bx, by, bw, bh);
+		
+		ax = parseInt(ax);
+		ay = parseInt(ay);
+		aw = parseInt(aw);
+		ah = parseInt(ah);
+
+		bx = parseInt(bx);
+		by = parseInt(by);
+		bw = parseInt(bw);
+		bh = parseInt(bh);
+
+		
+		var aex = ax + aw;
+		var aey = ay + ah;
+		
+		var bex = bx + bw;
+		var bey = by + bh;
+		
+		var x = ax<bx?ax:bx;
+		var y = ay<by?ay:by;
+		
+		var ex = aex>bex?aex:bex;
+		var ey = aey>bey?aey:bey;
+		
+		var width = ex - x;
+		var height = ey - y;
+		
+		var bb = [parseInt(x), parseInt(y), parseInt(width), parseInt(height)];
+		// console.log(bb);
+		return bb;
+	},
+	
+	
 	moveObject: function(currKey, newKey)
 	{
+		// this.logger.debug("called");
+		// console.log(currKey, newKey);
 		var currxy = currKey.split(",");
 		var newxy = newKey.split(",");
+		
 		var currRegion = this.getRegion(currxy[0], currxy[1]);
 		var newRegion = this.getRegion(newxy[0], newxy[1]);
 		
@@ -357,16 +467,36 @@ var RegionIndex = Class.extend({
 		{
 			this.logger.error("can't move object. None exists at currKey: " + currKey + " dest was " + newKey);
 		}
-		var blockingObject = newRegion.getObjectAt(newxy[0], newxy[1]);
-		if(blockingObject != null)
+		
+		// Get all keys occupied by the object to be moved.
+		// Using key's xy value because the objet itself has likely already moved. (???)
+		var startOccupiedKeys = this.getOccupiedKeys(currxy[0], currxy[1], o.width, o.height);
+		// Find the bounding box that occupies the entire movement.
+		var totalBounds = this.getBoundingBox(currxy[0], currxy[1], o.width, o.height, o.x, o.y, o.width, o.height);
+		// Find all keys inside the total bounds.
+		var totalOccupiedKeys = this.getOccupiedKeys(totalBounds[0], totalBounds[1], totalBounds[2], totalBounds[3]);
+		// Find the keys that are newly occupied during the move. Don't need to check keys that were already occupied.
+		var keys = this.arrayDifference(startOccupiedKeys, totalOccupiedKeys);
+
+		for(var i=0; i<keys.length; ++i)
 		{
-			o.collision(blockingObject);
-			return false;
+			var xy = keys[i].split(",");
+			
+			var blockingObject = this.getObjectAt(parseInt(xy[0]), parseInt(xy[1]));
+			if(blockingObject != null)
+			{
+				o.collision(blockingObject);
+				return false;
+			}
 		}
 		
-		newRegion.addObject(o);
-		currRegion.removeObject(currKey);
+		if(o.getKey() != currKey)
+		{
+			newRegion.addObject(o);
+			currRegion.removeObject(currKey);
+		}
 		// this.logger.debug("moved from " + currKey + " to " + newKey);
+		// this.logger.error("done");
 		return true;
 	},
 	
@@ -394,4 +524,5 @@ var RegionIndex = Class.extend({
 R = {};
 R.Region = Region;
 R.RegionIndex = RegionIndex;
+R.Key = Key;
 module.exports = R;

@@ -50,10 +50,6 @@ var GameController = Class.extend({
 	{
 		this.update();
 		
-		// Clear the canvas.
-		this.processing.stroke(0, 0, 0);
-		this.processing.fill(0, 0, 0);
-		this.processing.rect(0, 0, this.processing.width, this.processing.height);
 		
 		this.scene.draw(0,0,this.processing.width, this.processing.height);
 		this.menu.draw();

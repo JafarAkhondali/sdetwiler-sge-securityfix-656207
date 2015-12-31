@@ -24,7 +24,7 @@ var GameObject = Class.extend({
 		this.speed = 0.2;
 		this.userInteractionEnabled = true;
 		this.childrenMustBeInBounds = true;	// If true, click detection only applies to children that are within the bounds of the parent.
-		
+		this.syncToRegion = true; // Sync position changes to the owning region.
 		this.commit();
 		
 		this.children = [];
@@ -145,14 +145,17 @@ var GameObject = Class.extend({
 			changed = true;
 		}
 		
-		if(changed)
+		if(changed && this.syncToRegion)
 		{
 			var newKey = this.getKey();
-			if(currKey != newKey)
-			{
+			// if(currKey != newKey)
+			// {
 				// console.log(this);
-				this.parent.parent.moveObject(currKey, newKey);
-			}
+				if(this.parent && this.parent.parent && this.parent.parent.moveObject)
+				{
+					this.parent.parent.moveObject(currKey, newKey);
+				}
+			// }
 		}
 		
 		

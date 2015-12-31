@@ -77,8 +77,8 @@ var Block = GameObject.extend({
 			if(!changed)
 			{
 				this.logger.debug("!changed");
-				// this.x = this.ox;
-				// this.y = this.oy;
+				this.x = this.ox;
+				this.y = this.oy;
 				this.parent.removeObject(this.getKey());
 			}
 			else
@@ -95,6 +95,7 @@ var Block = GameObject.extend({
 		this.logger.debug("called");
 		this.userInteractionEnabled = false;
 		this.isDestroying = true;
+		this.syncToRegion = false;
 		this.speed = this.targetSpeed = .4;
 		var n = Block.Width;
 		this.ox = this.x;

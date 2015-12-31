@@ -28,6 +28,8 @@ var RegionScene = Region.RegionIndex.extend({
 		this.cameraY = 0;
 		this.cameraSpeed = 0.2;
 		
+		this.paused = false;
+		
 		this.commit();
 	},
 	
@@ -38,6 +40,11 @@ var RegionScene = Region.RegionIndex.extend({
 		this.targetCameraSpeed = this.cameraSpeed;
 	},
 	
+	togglePause: function()
+	{
+		this.logger.debug("called");
+		this.paused = !this.paused;
+	},
 	
 	placeBlock: function(x, y)
 	{
@@ -82,6 +89,11 @@ var RegionScene = Region.RegionIndex.extend({
 
 	update: function()
 	{
+		if(this.paused)
+		{
+			return false;
+		}
+
 		// this.logger.debug("called");
 		var changed = this._super();
 		
@@ -116,6 +128,16 @@ var RegionScene = Region.RegionIndex.extend({
 	
 	draw: function(x, y, width, height)
 	{
+		if(this.paused)
+		{
+			return;
+		}
+		
+		// Clear the canvas.
+		this.processing.stroke(0, 0, 0);
+		this.processing.fill(0, 0, 0);
+		this.processing.rect(0, 0, this.processing.width, this.processing.height);
+		
 		this.processing.pushMatrix();
 		this.processing.translate(this.cameraX, this.cameraY);
 		var drawCount = this._super(x-this.cameraX, y-this.cameraY, width, height);
@@ -175,31 +197,35 @@ var RegionScene = Region.RegionIndex.extend({
 			this.targetCameraY-=15;
 		}
 		
-		
+		// d
 		else if(this.processing.keyCode == 68)
 		{
 			this.setDebug(!this.debug);
 		}
-		else if(this.processing.keyCode == 65)
-		{
-			this.logger.debug("audit beginning");
-			this.audit([]);
-			this.logger.debug("audit complete");
-		}
 		
+		// s
 		else if(this.processing.keyCode == 83)
 		{
 			this.save();
 		}
 
+		// l
 		else if(this.processing.keyCode == 76)
 		{
 			this.load();
 		}
 
+		// c
 		else if(this.processing.keyCode == 67)
 		{
 			this.clear();
+		}
+		
+		
+		// p
+		else if(this.processing.keyCode == 80)
+		{
+			this.togglePause();
 		}
 		
 	}
