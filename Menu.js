@@ -14,7 +14,7 @@ var Menu = GameObject.extend({
 		this._super(parent);
 		this.logger.scope = "Menu";
 		
-		this.height = this.processing.height;
+		this.height = 10;
 		this.width = 120;
 		this.x = this.processing.width - this.width;
 		this.y = 0;
@@ -24,6 +24,8 @@ var Menu = GameObject.extend({
 		this.selectedMenuItem = null;
 		var item = this.addMenuItem("Red", this.processing.color(255, 0, 0), null);
 		this.addMenuItem("Villageacon", this.processing.color(255, 140, 0), null);
+		this.addMenuItem("Baby", this.processing.color(255, 140, 0), null);
+		this.addMenuItem("Chicken", this.processing.color(255, 140, 0), null);
 		this.addMenuItem("Green", this.processing.color(0, 255, 0), null);
 		this.addMenuItem("Blue", this.processing.color(0, 0, 255), null);
 		this.addMenuItem("Brown", this.processing.color(139, 69, 19), null);
@@ -47,6 +49,7 @@ var Menu = GameObject.extend({
 		item.x = (this.width - item.width)-8;
 		item.commit();
 		this.addChild(item);
+		this.height+=(item.height + 10);
 		return item;
 	},
 	

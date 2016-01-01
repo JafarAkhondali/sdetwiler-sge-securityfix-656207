@@ -359,6 +359,8 @@ var RegionIndex = Class.extend({
 	getOccupiedKeys: function(x, y, width, height)
 	{
 		// this.logger.debug("called");
+		// console.log("getOccupiedKeys", x,y,width,height);
+		
 		var keys = [];
 		var sx = Math.floor(x/Block.Width)*Block.Width;
 		var sy = Math.floor(y/Block.Height)*Block.Height;
@@ -373,12 +375,14 @@ var RegionIndex = Class.extend({
 			for(var cx=sx; cx<ex; cx+=Block.Width)
 			{
 				var key = cx + "," + cy;
-				if(keys.indexOf(key) < 0)
+				// console.log("\t", key);
+				if(this.getObjectAt(cx, cy) != null)
 				{
 					keys.push(key);
 				}
 			}
 		}
+		// console.log(keys);
 		return keys;
 	},
 	
@@ -437,7 +441,8 @@ var RegionIndex = Class.extend({
 		var o = currRegion.getObjectAt(currKey.x, currKey.y);
 		if(o == null)
 		{
-			this.logger.error("can't move object. None exists at currKey: " + currKey.toString() + " dest was " + newKey.toString());
+			this.logger.warn("can't move object. None exists at currKey: " + currKey.toString() + " dest was " + newKey.toString());
+			return false;
 		}
 		
 		// Get all keys occupied by the object to be moved.

@@ -69,6 +69,16 @@ var Scene = Region.RegionIndex.extend({
 			var data = JSON.parse(villageacon);
 			go = new TemplateObject(this, data);
 		}
+		else if(this.parent.menu.selectedMenuItem.label == "Baby")
+		{
+			var data = JSON.parse('{"20,0":{"type":"Red"},"20,20":{"type":"Brown"},"0,20":{"type":"Brown"},"40,20":{"type":"Brown"},"20,40":{"type":"Brown"},"20,60":{"type":"Brown"}}');
+			go = new TemplateObject(this, data);
+		}
+		else if(this.parent.menu.selectedMenuItem.label == "Chicken")
+		{
+			var data = JSON.parse('{"20,0":{"type":"Red"},"0,20":{"type":"White"},"20,20":{"type":"White"},"40,20":{"type":"White"},"20,40":{"type":"Green"}}');
+			go = new TemplateObject(this, data);
+		}
 		else
 		{
 			go = Block.createBlock(this.parent.menu.selectedMenuItem.label, this, null);

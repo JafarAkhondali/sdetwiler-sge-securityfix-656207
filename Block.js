@@ -45,16 +45,7 @@ var Block = GameObject.extend({
 		this.processing.fill(this.fillColor);
 		this.processing.stroke(this.strokeColor);
 		this.processing.rect(0, 0, this.width, this.height);
-		
-		if(false)
-		{
-			this.processing.stroke(255,255,255);
-			this.processing.fill(255,255,255);
-			this.processing.textSize(8);
-			this.processing.textAlign(this.processing.LEFT, this.processing.TOP);
-			this.processing.text(this.x + "," + this.y, 0,0);
-		}
-		
+		this._super();
 	},
 	
 	mouseClicked: function(x, y)
