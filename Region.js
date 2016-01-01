@@ -100,7 +100,7 @@ var Region = Class.extend({
 	
 	removeObject: function(key)
 	{
-		// this.logger.debug("called key:" + o.x + "," + o.y);
+		this.logger.debug("called key:" + key.toString());
 		this.objectKeysToRemove.push(key.toString());
 	},
 	
@@ -295,6 +295,15 @@ var RegionIndex = Class.extend({
 	createRegion: function(x, y)
 	{
 		this.logger.debug("called");
+		if((x + Region.Width) > RegionIndex.MaxWidth)
+		{
+			return null;
+		}
+		else if((y + Region.Height) > RegionIndex.MaxHeight)
+		{
+			return null;
+		}
+		
 		var region = new Region(this);
 		region.x = x;
 		region.y = y;
@@ -308,7 +317,10 @@ var RegionIndex = Class.extend({
 		
 		for(var k in this.regions)
 		{
-			this.regions[k].setDebug(enabled);
+			if(this.regions[k] != null)
+			{
+				this.regions[k].setDebug(enabled);
+			}
 		}
 	},
 	
@@ -316,7 +328,10 @@ var RegionIndex = Class.extend({
 	{
 		for(var k in this.regions)
 		{
-			this.regions[k].update();
+			if(this.regions[k] != null)
+			{
+				this.regions[k].update();
+			}
 		}
 	},
 	
@@ -329,9 +344,12 @@ var RegionIndex = Class.extend({
 			for(var cx = Math.floor(x/Region.Width)*Region.Width; cx<width; cx+=Region.Width)
 			{
 				var region = this.getRegion(cx, cy);
-				var counts = region.draw();
-				regionCount+=counts[0];
-				objectCount+=counts[1];
+				if(region != null)
+				{
+					var counts = region.draw();
+					regionCount+=counts[0];
+					objectCount+=counts[1];
+				}
 			}
 		}
 		
@@ -341,19 +359,31 @@ var RegionIndex = Class.extend({
 	mouseClicked: function(x, y)
 	{
 		var region = this.getRegion(x, y);
-		return region.mouseClicked(x, y);
+		if(region != null)
+		{
+			return region.mouseClicked(x, y);
+		}
+		return null;
 	},
 	
 	getObjectAt: function(x, y)
 	{
 		var region = this.getRegion(x, y);
-		return region.getObjectAt(x, y);
+		if(region)
+		{
+			return region.getObjectAt(x, y);
+		}
+		return null;
 	},
 	
 	addObject: function(o)
 	{
 		var region = this.getRegion(o.x, o.y);
-		return region.addObject(o);
+		if(region != null)
+		{
+			return region.addObject(o);
+		}
+		return null;
 	},
 	
 	getOccupiedKeys: function(x, y, width, height)
@@ -374,10 +404,9 @@ var RegionIndex = Class.extend({
 		{
 			for(var cx=sx; cx<ex; cx+=Block.Width)
 			{
-				var key = cx + "," + cy;
-				// console.log("\t", key);
 				if(this.getObjectAt(cx, cy) != null)
 				{
+					var key = cx + "," + cy;
 					keys.push(key);
 				}
 			}
@@ -436,13 +465,24 @@ var RegionIndex = Class.extend({
 		// console.log(currKey, newKey);
 		
 		var currRegion = this.getRegion(currKey.x, currKey.y);
-		var newRegion = this.getRegion(newKey.x, newKey.y);
-		
+		if(currRegion == null)
+		{
+			this.logger.warn("Can't get region containing key " + currKey.toString());
+			return false;
+		}
 		var o = currRegion.getObjectAt(currKey.x, currKey.y);
 		if(o == null)
 		{
 			this.logger.warn("can't move object. None exists at currKey: " + currKey.toString() + " dest was " + newKey.toString());
 			return false;
+		}
+
+		var newRegion = this.getRegion(newKey.x, newKey.y);
+		if(newRegion == null)
+		{
+			this.logger.warn("Cannot move to invalid key " + newKey.toString());
+			this.removeObject(currKey);
+			return true;
 		}
 		
 		// Get all keys occupied by the object to be moved.
@@ -492,12 +532,18 @@ var RegionIndex = Class.extend({
 
 	removeObject: function(key)
 	{
+		console.log(key);
 		var region = this.getRegion(key.x, key.y);
-		region.removeObject(key.x. key.y);
+		if(region != null)
+		{
+			region.removeObject(key);
+		}
 	}
 	
 });
 
+RegionIndex.MaxWidth = Region.Width * 10;
+RegionIndex.MaxHeight = Region.Height * 10;
 
 R = {};
 R.Region = Region;

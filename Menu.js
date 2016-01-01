@@ -26,6 +26,7 @@ var Menu = GameObject.extend({
 		this.addMenuItem("Villageacon", this.processing.color(255, 140, 0), null);
 		this.addMenuItem("Baby", this.processing.color(255, 140, 0), null);
 		this.addMenuItem("Chicken", this.processing.color(255, 140, 0), null);
+		this.addMenuItem("Diggeracon", this.processing.color(255, 140, 0), null);
 		this.addMenuItem("Green", this.processing.color(0, 255, 0), null);
 		this.addMenuItem("Blue", this.processing.color(0, 0, 255), null);
 		this.addMenuItem("Brown", this.processing.color(139, 69, 19), null);
@@ -111,6 +112,8 @@ var Menu = GameObject.extend({
 			this.isOpen = true;
 			this.targetX = this.processing.width - this.width;
 		}
+		
+		this.logger.debug("called");
 	}
 	
 });
@@ -127,11 +130,17 @@ var MenuHandle = GameObject.extend({
 	{
 		this._super(parent);
 		this.font = this.processing.loadFont("Arial.ttf"); 
-		this.label = "Items";
+		this.label = "Blocks";
 		this.width = 25;
 		this.height = parent.height;
 	},
 
+	update: function()
+	{
+		this.height = parent.height;
+		this.targetHeight = this.height;
+		
+	},
 	drawObject: function()
 	{
 		this.processing.stroke(0, 0, 0);
@@ -150,7 +159,7 @@ var MenuHandle = GameObject.extend({
 
 	mouseClicked: function(x, y)
 	{
-		this.logger.debug("MenuHandle mouseClicked");
+		this.logger.debug("MenuHandle mouseClicked " + x + "," + y);
 		if(this.userInteractionEnabled && this.containsPoint(x,y))
 		{
 			this.logger.debug(this.label + " clicked");

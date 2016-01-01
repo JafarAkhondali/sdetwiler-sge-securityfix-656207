@@ -79,6 +79,11 @@ var Scene = Region.RegionIndex.extend({
 			var data = JSON.parse('{"20,0":{"type":"Red"},"0,20":{"type":"White"},"20,20":{"type":"White"},"40,20":{"type":"White"},"20,40":{"type":"Green"}}');
 			go = new TemplateObject(this, data);
 		}
+		else if(this.parent.menu.selectedMenuItem.label == "Diggeracon")
+		{
+			var data = JSON.parse('{"0,40":{"type":"Blue"},"0,20":{"type":"Blue"},"20,20":{"type":"Blue"},"40,20":{"type":"Blue"},"40,40":{"type":"Blue"},"60,0":{"type":"Blue"}}');
+			go = new TemplateObject(this, data);
+		}
 		else
 		{
 			go = Block.createBlock(this.parent.menu.selectedMenuItem.label, this, null);

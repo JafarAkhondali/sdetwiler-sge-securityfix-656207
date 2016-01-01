@@ -114,7 +114,7 @@ var GameObject = Class.extend({
 		
 		return n;
 	},
-	
+		
 	collision: function(o)
 	{
 		this.logger.debug("called");
