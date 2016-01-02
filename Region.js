@@ -100,7 +100,7 @@ var Region = Class.extend({
 	
 	removeObject: function(key)
 	{
-		this.logger.debug("called key:" + key.toString());
+		// this.logger.debug("called key:" + key.toString());
 		this.objectKeysToRemove.push(key.toString());
 	},
 	
@@ -231,13 +231,53 @@ var RegionIndex = Class.extend({
 		this.debug = false;
 	},
 	
+	translateToOrigin: function(data)
+	{
+		var x = Number.MAX_VALUE;
+		var y = Number.MAX_VALUE;
+		for(var k in data)
+		{
+			var xy = k.split(",");
+			var cx = parseInt(xy[0]);
+			var cy = parseInt(xy[1]);
+			
+			if(x > cx)
+			{
+				x = cx;
+			}
+			if(y > cy)
+			{
+				y = cy;
+			}
+		}
+		
+		var translated = {};
+		for(var k in data)
+		{
+			var xy = k.split(",");
+			var cx = parseInt(xy[0]) - x;
+			var cy = parseInt(xy[1]) - y;
+			
+			var key = cx + "," + cy;
+			translated[key] = data[k]
+		}
+		
+		return translated;
+	},
+	
+	
 	saveAsTemplate: function()
 	{
 		this.logger.debug("called");
 		var region = this.getRegion(0,0);
 		var data = region.save();
-		var data = JSON.stringify(data);
-		console.log(data);
+		var template = {};
+		template["blocks"] = this.translateToOrigin(data);
+		template["speed"] = 0.5;
+		template["v"] = 1;
+
+		var js = JSON.stringify(template);
+		console.log(js);
 	},
 	
 	save: function()
@@ -389,7 +429,7 @@ var RegionIndex = Class.extend({
 	getOccupiedKeys: function(x, y, width, height)
 	{
 		// this.logger.debug("called");
-		// console.log("getOccupiedKeys", x,y,width,height);
+		//console.log("getOccupiedKeys", x,y,width,height);
 		
 		var keys = [];
 		var sx = Math.floor(x/Block.Width)*Block.Width;
@@ -504,8 +544,8 @@ var RegionIndex = Class.extend({
 			var blockingObject = this.getObjectAt(kx, ky);
 			if(blockingObject != null)
 			{
-				o.collision(blockingObject);
-				return false;
+				o.collision(currKey, blockingObject);
+				// return false;
 			}
 		}
 		
@@ -532,7 +572,7 @@ var RegionIndex = Class.extend({
 
 	removeObject: function(key)
 	{
-		console.log(key);
+		// console.log(key);
 		var region = this.getRegion(key.x, key.y);
 		if(region != null)
 		{

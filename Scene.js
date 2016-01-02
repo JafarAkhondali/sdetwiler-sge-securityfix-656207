@@ -65,13 +65,13 @@ var Scene = Region.RegionIndex.extend({
 		
 		if(this.parent.menu.selectedMenuItem.label == "Villageacon")
 		{
-			var villageacon = '{"40,20":{"type":"White"},"20,20":{"type":"White"},"40,40":{"type":"White"},"60,20":{"type":"White"},"0,60":{"type":"White"},"20,60":{"type":"White"},"40,60":{"type":"White"},"60,60":{"type":"White"},"80,60":{"type":"White"},"80,80":{"type":"White"},"40,80":{"type":"White"},"0,80":{"type":"White"},"40,0":{"type":"Orange"},"80,20":{"type":"Red"},"0,20":{"type":"Red"}}';
+			var villageacon = '{"blocks":{"40,0":{"type":"Red"},"40,20":{"type":"White"},"40,40":{"type":"White"},"40,60":{"type":"White"},"20,60":{"type":"White"},"0,60":{"type":"White"},"0,80":{"type":"White"},"40,80":{"type":"White"},"60,60":{"type":"White"},"80,60":{"type":"White"},"80,80":{"type":"White"},"20,20":{"type":"White"},"60,20":{"type":"White"},"80,20":{"type":"Orange"},"0,20":{"type":"Orange"}},"speed":0.05,"v":1}';
 			var data = JSON.parse(villageacon);
 			go = new TemplateObject(this, data);
 		}
 		else if(this.parent.menu.selectedMenuItem.label == "Baby")
 		{
-			var data = JSON.parse('{"20,0":{"type":"Red"},"20,20":{"type":"Brown"},"0,20":{"type":"Brown"},"40,20":{"type":"Brown"},"20,40":{"type":"Brown"},"20,60":{"type":"Brown"}}');
+			var data = JSON.parse('{"blocks":{"20,0":{"type":"Red"},"20,20":{"type":"Brown"},"20,40":{"type":"Brown"},"0,20":{"type":"Brown"},"40,20":{"type":"Brown"},"20,60":{"type":"Brown"}},"speed":0.1,"v":1}');
 			go = new TemplateObject(this, data);
 		}
 		else if(this.parent.menu.selectedMenuItem.label == "Chicken")

@@ -16,6 +16,7 @@ var TemplateObject = GameObject.extend({
 		this.speed = 0.05;
 		this.commit();
 		this.direction = 1;
+		this.climbing = false;
 
 		if(data != null)
 		{
@@ -33,11 +34,12 @@ var TemplateObject = GameObject.extend({
 	
 	load: function(data)
 	{
-		for(var k in data)
+		var blocks = data["blocks"];
+		for(var k in blocks)
 		{
 			var key = new Key();
 			key.fromString(k);
-			var blockData = data[k];
+			var blockData = blocks[k];
 			var block = Block.createBlock(blockData.type, this, blockData);
 			block.x = key.x;
 			block.y = key.y;
@@ -53,17 +55,25 @@ var TemplateObject = GameObject.extend({
 				this.height = block.y + block.height;
 			}
 		}
+		
+		this.movingSpeed = this.speed = this.targetSpeed = data["speed"];
 	},
 	
 	update: function()
 	{
+		var currKey = this.getKey();
+		// this.logger.debug("called");
+		var changed = this._super();
+		
 		// Gravity check...
 		var blocksBelow = this.parent.parent.getOccupiedKeys(this.x, this.y+(this.height), this.width, Block.Height);
-		if(blocksBelow.length==0)
+		if(blocksBelow.length==0 && !this.climbing)
 		{
+			this.logger.debug("applying gravity");
 			this.targetSpeed = 1.0;
 			
-			this.targetY = this.y + (Block.Height);
+			this.targetY = currKey.y + (Block.Height);
+			changed = true;
 		}
 		// else
 		// {
@@ -79,25 +89,48 @@ var TemplateObject = GameObject.extend({
 		// }
 		else
 		{
-			this.targetSpeed = 0.05;
-			this.targetX = this.x+(Block.Width * this.direction);
+			this.targetSpeed = this.movingSpeed;
+			this.targetX = currKey.x+(Block.Width * this.direction);
+			if(this.direction==1)
+			{
+				this.targetX+=Block.Width;
+			}
+			changed = true;
 		}
-		var changed = this._super();
-		
+
+		this.climbing = false;
 		return changed;
 	},
 	
-	collision: function(o)
+	collision: function(collisionAtKey, o)
 	{
-		// this.logger.debug("called");
-		if(this.direction == 1)
+		this.logger.debug("called");
+		var stepKeys = null;
+		if(collisionAtKey.x > o.x)
 		{
-			this.direction = -1;
-		}
-		else
-		{
+			this.logger.debug("left collide key:" + collisionAtKey.toString());
+			stepKeys = this.parent.parent.getOccupiedKeys(collisionAtKey.x-Block.Width, collisionAtKey.y, Block.Width, this.height-Block.Height);
 			this.direction = 1;
 		}
+		else if(collisionAtKey.x < o.x)
+		{
+			this.logger.debug("right collide key:" + collisionAtKey.toString());
+			stepKeys = this.parent.parent.getOccupiedKeys(collisionAtKey.x+this.width, collisionAtKey.y, Block.Width, this.height-Block.Height);
+			this.direction = -1;
+		}
+
+		console.log(stepKeys);
+		
+		if((stepKeys!=null) && (stepKeys.length == 0))
+		{
+			this.direction = -this.direction;
+			this.targetX = collisionAtKey.x+(Block.Width * this.direction);
+			this.targetY = collisionAtKey.y-(Block.Height);
+			this.climbing = true;
+		}
+		this.x = collisionAtKey.x;
+		// this.y = collisionAtKey.y;
+		// console.log(this.direction);
 	},
 	
 });

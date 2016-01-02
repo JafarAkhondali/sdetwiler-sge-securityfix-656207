@@ -115,7 +115,7 @@ var GameObject = Class.extend({
 		return n;
 	},
 		
-	collision: function(o)
+	collision: function(collisionAtKey, o)
 	{
 		this.logger.debug("called");
 	},
@@ -201,10 +201,13 @@ var GameObject = Class.extend({
 		if(false)
 		{
 			this.processing.stroke(128,128,128);
-			this.processing.fill(128,128,128);
+			this.processing.fill(255,255,255);
 			this.processing.textSize(8);
 			this.processing.textAlign(this.processing.LEFT, this.processing.TOP);
-			this.processing.text(this.x + ",\n" + this.y, 0,0);
+			this.processing.text(this.x + ",\n" + this.y, 2, 2);
+			
+			this.processing.noFill();
+			this.processing.rect(0, 0, this.width, this.height);
 		}
 	},
 	
