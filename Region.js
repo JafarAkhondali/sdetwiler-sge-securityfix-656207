@@ -229,6 +229,8 @@ var RegionIndex = Class.extend({
 		this.regions = {};
 		
 		this.debug = false;
+		
+		this.kill = false; // debugging kill switch.
 	},
 	
 	translateToOrigin: function(data)

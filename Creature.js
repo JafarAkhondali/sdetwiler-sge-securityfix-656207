@@ -3,16 +3,16 @@ var Block = require('./Block');
 var Key = require('./Key');
 
 ///////////////////////////////////////////////////////////////////////////////
-// TemplateObject
+// Creature
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
-var TemplateObject = GameObject.extend({
+var Creature = GameObject.extend({
 	init: function(parent, data)
 	{
 		this._super(parent);
 		this.fillColor = this.processing.color(255, 255, 255);
-		this.type = TemplateObject.Type;
+		this.type = Creature.Type;
 		this.speed = 0.05;
 		this.commit();
 		this.direction = 1;
@@ -104,7 +104,8 @@ var TemplateObject = GameObject.extend({
 	
 	collision: function(collisionAtKey, o)
 	{
-		this.logger.debug("called");
+		// this.logger.debug("called");
+		var thisKey = this.getKey();
 		var stepKeys = null;
 		if(collisionAtKey.x > o.x)
 		{
@@ -115,11 +116,26 @@ var TemplateObject = GameObject.extend({
 		else if(collisionAtKey.x < o.x)
 		{
 			this.logger.debug("right collide key:" + collisionAtKey.toString());
+			
+			// HACK: Can't track down some sort of rounding error that occasionally places the collisionAtKey on the wrong side of the object itself
+			// when collisions occur right on a floating point rounding boundary. -SCD
+			if(collisionAtKey.x < thisKey.x)
+			{
+				this.logger.debug("collision hack applied");
+				collisionAtKey = thisKey;
+			}
+			
 			stepKeys = this.parent.parent.getOccupiedKeys(collisionAtKey.x+this.width, collisionAtKey.y, Block.Width, this.height-Block.Height);
 			this.direction = -1;
 		}
 
-		console.log(stepKeys);
+		// console.log(stepKeys);
+		
+		
+		if(this.parent.parent.kill == true)
+		{
+			this.logger.error("Killing");
+		}
 		
 		if((stepKeys!=null) && (stepKeys.length == 0))
 		{
@@ -128,11 +144,11 @@ var TemplateObject = GameObject.extend({
 			this.targetY = collisionAtKey.y-(Block.Height);
 			this.climbing = true;
 		}
-		this.x = collisionAtKey.x;
+		this.targetX = this.x = collisionAtKey.x;
 		// this.y = collisionAtKey.y;
 		// console.log(this.direction);
 	},
 	
 });
-TemplateObject.Type = "TemplateObject";
-module.exports = TemplateObject;
+Creature.Type = "Creature";
+module.exports = Creature;

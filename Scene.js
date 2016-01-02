@@ -1,6 +1,6 @@
 var Region = require('./Region');
 var GameObject = require('./GameObject');
-var TemplateObject = require('./TemplateObject');
+var Creature = require('./Creature');
 var Block = require('./Block');
 var RedBlock = require('./RedBlock');
 var GreenBlock = require('./GreenBlock');
@@ -67,22 +67,22 @@ var Scene = Region.RegionIndex.extend({
 		{
 			var villageacon = '{"blocks":{"40,0":{"type":"Red"},"40,20":{"type":"White"},"40,40":{"type":"White"},"40,60":{"type":"White"},"20,60":{"type":"White"},"0,60":{"type":"White"},"0,80":{"type":"White"},"40,80":{"type":"White"},"60,60":{"type":"White"},"80,60":{"type":"White"},"80,80":{"type":"White"},"20,20":{"type":"White"},"60,20":{"type":"White"},"80,20":{"type":"Orange"},"0,20":{"type":"Orange"}},"speed":0.05,"v":1}';
 			var data = JSON.parse(villageacon);
-			go = new TemplateObject(this, data);
+			go = new Creature(this, data);
 		}
 		else if(this.parent.menu.selectedMenuItem.label == "Baby")
 		{
 			var data = JSON.parse('{"blocks":{"20,0":{"type":"Red"},"20,20":{"type":"Brown"},"20,40":{"type":"Brown"},"0,20":{"type":"Brown"},"40,20":{"type":"Brown"},"20,60":{"type":"Brown"}},"speed":0.1,"v":1}');
-			go = new TemplateObject(this, data);
+			go = new Creature(this, data);
 		}
 		else if(this.parent.menu.selectedMenuItem.label == "Chicken")
 		{
-			var data = JSON.parse('{"20,0":{"type":"Red"},"0,20":{"type":"White"},"20,20":{"type":"White"},"40,20":{"type":"White"},"20,40":{"type":"Green"}}');
-			go = new TemplateObject(this, data);
+			var data = JSON.parse('{"blocks":{"20,0":{"type":"Red"},"20,20":{"type":"White"},"0,20":{"type":"White"},"40,20":{"type":"White"},"20,40":{"type":"Yellow"}},"speed":0.12,"v":1}');
+			go = new Creature(this, data);
 		}
 		else if(this.parent.menu.selectedMenuItem.label == "Diggeracon")
 		{
-			var data = JSON.parse('{"0,40":{"type":"Blue"},"0,20":{"type":"Blue"},"20,20":{"type":"Blue"},"40,20":{"type":"Blue"},"40,40":{"type":"Blue"},"60,0":{"type":"Blue"}}');
-			go = new TemplateObject(this, data);
+			var data = JSON.parse('{"blocks":{"0,40":{"type":"Blue"},"40,40":{"type":"Blue"},"0,20":{"type":"Blue"},"20,20":{"type":"Blue"},"40,20":{"type":"Blue"},"60,0":{"type":"Blue"}},"speed":0.5,"v":1}');
+			go = new Creature(this, data);
 		}
 		else
 		{
@@ -157,6 +157,10 @@ var Scene = Region.RegionIndex.extend({
 	{
 		if(this.paused)
 		{
+			this.processing.fill(255,255,255);
+			this.processing.textSize(16);
+			this.processing.textAlign(this.processing.LEFT, this.processing.TOP);
+			this.processing.text("[p]aused", 10, 10);
 			return;
 		}
 		
@@ -180,8 +184,8 @@ var Scene = Region.RegionIndex.extend({
 
 			this.processing.fill(255,255,255);
 			this.processing.textSize(12);
-			this.processing.textAlign(this.processing.LEFT, this.processing.TOP);			
-			this.processing.text(txt, this.processing.width-250, 0);
+			this.processing.textAlign(this.processing.LEFT, this.processing.TOP);
+			this.processing.text(txt, 10, 10);
 		}
 		
 	},
@@ -259,6 +263,12 @@ var Scene = Region.RegionIndex.extend({
 		else if(this.processing.keyCode == 80)
 		{
 			this.togglePause();
+		}
+
+		// k
+		else if(this.processing.keyCode == 75)
+		{
+			this.kill = true;
 		}
 		
 	}

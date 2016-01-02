@@ -198,7 +198,7 @@ var GameObject = Class.extend({
 	
 	drawObject: function()
 	{
-		if(false)
+		if(true)
 		{
 			this.processing.stroke(128,128,128);
 			this.processing.fill(255,255,255);
