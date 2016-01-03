@@ -5,13 +5,17 @@ var Key = require('./Key');
 ///////////////////////////////////////////////////////////////////////////////
 // Creature
 //
+// A Creature is a GameObject heirarchy that moves within a region.
+// The position and bounds of the Creature contain all child GameObjects, 
+// typically Blocks.
 //
 ///////////////////////////////////////////////////////////////////////////////
-var Creature = GameObject.extend({
+var Creature = Block.extend({
 	init: function(parent, data)
 	{
 		this._super(parent);
-		this.fillColor = this.processing.color(255, 255, 255);
+		this.fillColor = this.processing.color(255, 0, 0, 0); 	// Transparent.
+		this.strokeColor = this.processing.color(255, 0, 0, 0); 	// Transparent.
 		this.type = Creature.Type;
 		this.speed = 0.05;
 		this.commit();
@@ -41,18 +45,31 @@ var Creature = GameObject.extend({
 			key.fromString(k);
 			var blockData = blocks[k];
 			var block = Block.createBlock(blockData.type, this, blockData);
-			block.x = key.x;
-			block.y = key.y;
-			block.commit();
-			this.addChild(block);
-			
-			if((block.x + block.width) > this.width)
+
+			// The current block occupies the location of the root of the creature so take on
+			// the properties of the block.
+			if((key.x == 0) && (key.y == 0))
 			{
-				this.width = block.x + block.width;
+				this.logger.debug("Patching Creature");
+				this.fillColor = block.fillColor;
+				this.strokeColor = block.strokeColor;
 			}
-			if((block.y + block.height) > this.height)
+			// Otherwise make the block a child.
+			else
 			{
-				this.height = block.y + block.height;
+				block.x = key.x;
+				block.y = key.y;
+				block.commit();
+				this.addChild(block);
+			
+				if((block.x + block.width) > this.width)
+				{
+					this.width = block.x + block.width;
+				}
+				if((block.y + block.height) > this.height)
+				{
+					this.height = block.y + block.height;
+				}
 			}
 		}
 		
@@ -65,40 +82,31 @@ var Creature = GameObject.extend({
 		// this.logger.debug("called");
 		var changed = this._super();
 		
-		// Gravity check...
-		var blocksBelow = this.parent.parent.getOccupiedKeys(this.x, this.y+(this.height), this.width, Block.Height);
-		if(blocksBelow.length==0 && !this.climbing)
+		if(this.isDestroying == false)
 		{
-			this.logger.debug("applying gravity");
-			this.targetSpeed = 1.0;
-			
-			this.targetY = currKey.y + (Block.Height);
-			changed = true;
-		}
-		// else
-		// {
-		// 	console.log(blocksBelow);
-		// 	for(var i=0; i<blocksBelow.length; ++i)
-		// 	{
-		// 		var xy = blocksBelow[i].split(",");
-		// 		var x = parseInt(xy[0]);
-		// 		var y = parseInt(xy[1]);
-		// 		var b = this.parent.parent.getObjectAt(x,y);
-		// 		console.log(b);
-		// 	}
-		// }
-		else
-		{
-			this.targetSpeed = this.movingSpeed;
-			this.targetX = currKey.x+(Block.Width * this.direction);
-			if(this.direction==1)
+			// Gravity check...
+			var blocksBelow = this.parent.parent.getOccupiedKeys(this.x, this.y+(this.height), this.width, Block.Height);
+			if(blocksBelow.length==0 && !this.climbing)
 			{
-				this.targetX+=Block.Width;
+				// this.logger.debug("applying gravity");
+				this.targetSpeed = 1.0;
+			
+				this.targetY = currKey.y + (Block.Height);
+				changed = true;
 			}
-			changed = true;
-		}
+			else
+			{
+				this.targetSpeed = this.movingSpeed;
+				this.targetX = currKey.x+(Block.Width * this.direction);
+				if(this.direction==1)
+				{
+					this.targetX+=Block.Width;
+				}
+				changed = true;
+			}
 
-		this.climbing = false;
+			this.climbing = false;
+		}
 		return changed;
 	},
 	
@@ -145,8 +153,7 @@ var Creature = GameObject.extend({
 			this.climbing = true;
 		}
 		this.targetX = this.x = collisionAtKey.x;
-		// this.y = collisionAtKey.y;
-		// console.log(this.direction);
+		// this.targetY = this.y = collisionAtKey.y;
 	},
 	
 });

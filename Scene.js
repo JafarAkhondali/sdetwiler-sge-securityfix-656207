@@ -1,6 +1,7 @@
 var Region = require('./Region');
 var GameObject = require('./GameObject');
 var Creature = require('./Creature');
+var Item = require('./Item');
 var Block = require('./Block');
 var RedBlock = require('./RedBlock');
 var GreenBlock = require('./GreenBlock');
@@ -74,16 +75,28 @@ var Scene = Region.RegionIndex.extend({
 			var data = JSON.parse('{"blocks":{"20,0":{"type":"Red"},"20,20":{"type":"Brown"},"20,40":{"type":"Brown"},"0,20":{"type":"Brown"},"40,20":{"type":"Brown"},"20,60":{"type":"Brown"}},"speed":0.1,"v":1}');
 			go = new Creature(this, data);
 		}
-		else if(this.parent.menu.selectedMenuItem.label == "Chicken")
+		else if(this.parent.menu.selectedMenuItem.label == "Chickenacon")
 		{
 			var data = JSON.parse('{"blocks":{"20,0":{"type":"Red"},"20,20":{"type":"White"},"0,20":{"type":"White"},"40,20":{"type":"White"},"20,40":{"type":"Yellow"}},"speed":0.12,"v":1}');
 			go = new Creature(this, data);
 		}
-		else if(this.parent.menu.selectedMenuItem.label == "Diggeracon")
+		else if(this.parent.menu.selectedMenuItem.label == "Mineracon")
 		{
 			var data = JSON.parse('{"blocks":{"0,40":{"type":"Blue"},"40,40":{"type":"Blue"},"0,20":{"type":"Blue"},"20,20":{"type":"Blue"},"40,20":{"type":"Blue"},"60,0":{"type":"Blue"}},"speed":0.5,"v":1}');
 			go = new Creature(this, data);
 		}
+		else if(this.parent.menu.selectedMenuItem.label == "Blobacon")
+		{
+			var data = JSON.parse('{"blocks":{"0,0":{"type":"Green"},"20,0":{"type":"Green"},"40,0":{"type":"Green"},"40,20":{"type":"Green"},"40,40":{"type":"Green"},"20,40":{"type":"Green"},"0,40":{"type":"Green"},"0,20":{"type":"Green"},"20,20":{"type":"Blue"},"40,60":{"type":"Green"},"0,60":{"type":"Green"}},"speed":0.001,"v":1}');
+			go = new Creature(this, data);
+		}
+		
+		else if(this.parent.menu.selectedMenuItem.label == "Bridge")
+		{
+			var data = JSON.parse('{"blocks":{"100,0":{"type":"Yellow"},"80,0":{"type":"White"},"60,0":{"type":"White"},"40,0":{"type":"White"},"20,0":{"type":"White"},"0,0":{"type":"White"}},"speed":0.5,"v":1}');
+			go = new Item(this, data);
+		}
+		
 		else
 		{
 			go = Block.createBlock(this.parent.menu.selectedMenuItem.label, this, null);
@@ -166,7 +179,7 @@ var Scene = Region.RegionIndex.extend({
 		
 		// Clear the canvas.
 		this.processing.stroke(0, 0, 0);
-		this.processing.fill(0, 0, 0);
+		this.processing.fill(90, 142, 209);
 		this.processing.rect(0, 0, this.processing.width, this.processing.height);
 		
 		this.processing.pushMatrix();

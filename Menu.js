@@ -26,8 +26,11 @@ var Menu = GameObject.extend({
 
 		this.addMenuItem("Villageacon", this.processing.color(255, 140, 0), null);
 		this.addMenuItem("Baby", this.processing.color(255, 140, 0), null);
-		this.addMenuItem("Chicken", this.processing.color(255, 140, 0), null);
-		this.addMenuItem("Diggeracon", this.processing.color(255, 140, 0), null);
+		this.addMenuItem("Chickenacon", this.processing.color(255, 140, 0), null);
+		this.addMenuItem("Mineracon", this.processing.color(255, 140, 0), null);
+		this.addMenuItem("Blobacon", this.processing.color(255, 140, 0), null);
+
+		this.addMenuItem("Bridge", this.processing.color(255, 140, 0), null);
 
 		this.addMenuItem("Green", this.processing.color(0, 255, 0), null);
 		this.addMenuItem("Blue", this.processing.color(0, 0, 255), null);
@@ -73,6 +76,14 @@ var Menu = GameObject.extend({
 		if(this.userInteractionEnabled && this.containsPoint(x, y))
 		{
 			this.targetY+= this.processing.mouseY - this.processing.pmouseY;
+			if(this.targetY > 0)
+			{
+				this.targetY = 0;
+			}
+			else if(this.targetY < (this.processing.height-this.height))
+			{
+				this.targetY = this.processing.height-this.height;
+			}
 			return true;
 		}
 		return false;
@@ -162,7 +173,7 @@ var MenuHandle = GameObject.extend({
 	mouseClicked: function(x, y)
 	{
 		this.logger.debug("MenuHandle mouseClicked " + x + "," + y);
-		if(this.userInteractionEnabled && this.containsPoint(x,y))
+		if(this.userInteractionEnabled)
 		{
 			this.logger.debug(this.label + " clicked");
 			this.parent.toggleMenu();

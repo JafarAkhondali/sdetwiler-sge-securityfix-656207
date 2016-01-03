@@ -26,7 +26,7 @@ var GameObject = Class.extend({
 		this.userInteractionEnabled = true;
 		this.childrenMustBeInBounds = true;	// If true, click detection only applies to children that are within the bounds of the parent.
 		this.syncToRegion = true; // Sync position changes to the owning region.
-		
+		this.collisionDetectionEnabled = true;
 		this.commit();
 		
 		this.children = [];
@@ -79,7 +79,7 @@ var GameObject = Class.extend({
 	},
 
 
-	// SCD This is horrible.
+	// SCD This is horrible for large numbers of children.
 	getChildAt: function(x, y)
 	{
 		for(var i=0; i<this.children.length; ++i)
@@ -131,7 +131,10 @@ var GameObject = Class.extend({
 		}
 		if(this.x != this.targetX)
 		{
-			this.x = this.capLerp(this.x, this.targetX, this.speed);
+			// this.logger.debug("updating x");
+			var nx = this.capLerp(this.x, this.targetX, this.speed);
+			// console.log(this.x, this.targetX, this.speed, nx);
+			this.x = nx;
 			changed = true;
 		}
 		if(this.y != this.targetY)
@@ -155,7 +158,12 @@ var GameObject = Class.extend({
 			var newKey = this.getKey();
 			if(this.parent && this.parent.parent && this.parent.parent.moveObject)
 			{
+				// this.logger.debug("calling moveObject");
 				this.parent.parent.moveObject(currKey, newKey);
+			}
+			else
+			{
+				this.logger.debug("wanted to move but moveObject wasn't whereit was expected");
 			}
 		}
 		
@@ -198,7 +206,7 @@ var GameObject = Class.extend({
 	
 	drawObject: function()
 	{
-		if(true)
+		if(false)
 		{
 			this.processing.stroke(128,128,128);
 			this.processing.fill(255,255,255);

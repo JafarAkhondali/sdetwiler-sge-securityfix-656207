@@ -1,6 +1,5 @@
 var GameObject = require('./GameObject');
 var Key = require('./Key');
-// var UUID = require('./uuid-js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // Block
@@ -12,7 +11,6 @@ var Block = GameObject.extend({
 	{
 		this._super(parent);
 		this.logger.scope = "Block";
-		// this.id = UUID.create();
 		this.type = null;
 		this.width = Block.Width;
 		this.height = Block.Height;
@@ -23,8 +21,7 @@ var Block = GameObject.extend({
 		this.isDestroying = false;
 		
 		this.targetFillColor = this.fillColor;
-		
-		// this.logger.debug(this.id.toString());
+		this.targetStrokeColor = this.strokeColor;
 	},
 	
 	getKey: function()
@@ -76,6 +73,7 @@ var Block = GameObject.extend({
 			else
 			{
 				this.fillColor = this.processing.lerpColor(this.fillColor, this.targetFillColor, this.speed);
+				this.strokeColor = this.processing.lerpColor(this.strokeColor, this.targetStrokeColor, this.speed);
 			}
 		}
 		
@@ -103,6 +101,15 @@ var Block = GameObject.extend({
 			this.processing.blue(this.fillColor),
 			0
 		);
+		
+		this.targetStrokeColor = this.processing.color(
+			this.processing.red(this.strokeColor/2),
+			this.processing.green(this.strokeColor/2),
+			this.processing.blue(this.strokeColor/2),
+			0
+		);
+
+
 	}
 });
 

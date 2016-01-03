@@ -8,6 +8,51 @@ var Key = require('./Key');
 //
 ///////////////////////////////////////////////////////////////////////////////
 var Region = Class.extend({
+	
+	
+	// createThing: function(type, parent, data)
+	// {
+	// 	if(this.parent.menu.selectedMenuItem.label == "Villageacon")
+	// 	{
+	// 		var villageacon = '{"blocks":{"40,0":{"type":"Red"},"40,20":{"type":"White"},"40,40":{"type":"White"},"40,60":{"type":"White"},"20,60":{"type":"White"},"0,60":{"type":"White"},"0,80":{"type":"White"},"40,80":{"type":"White"},"60,60":{"type":"White"},"80,60":{"type":"White"},"80,80":{"type":"White"},"20,20":{"type":"White"},"60,20":{"type":"White"},"80,20":{"type":"Orange"},"0,20":{"type":"Orange"}},"speed":0.05,"v":1}';
+	// 		var data = JSON.parse(villageacon);
+	// 		go = new Creature(this, data);
+	// 	}
+	// 	else if(this.parent.menu.selectedMenuItem.label == "Baby")
+	// 	{
+	// 		var data = JSON.parse('{"blocks":{"20,0":{"type":"Red"},"20,20":{"type":"Brown"},"20,40":{"type":"Brown"},"0,20":{"type":"Brown"},"40,20":{"type":"Brown"},"20,60":{"type":"Brown"}},"speed":0.1,"v":1}');
+	// 		go = new Creature(this, data);
+	// 	}
+	// 	else if(this.parent.menu.selectedMenuItem.label == "Chickenacon")
+	// 	{
+	// 		var data = JSON.parse('{"blocks":{"20,0":{"type":"Red"},"20,20":{"type":"White"},"0,20":{"type":"White"},"40,20":{"type":"White"},"20,40":{"type":"Yellow"}},"speed":0.12,"v":1}');
+	// 		go = new Creature(this, data);
+	// 	}
+	// 	else if(this.parent.menu.selectedMenuItem.label == "Mineracon")
+	// 	{
+	// 		var data = JSON.parse('{"blocks":{"0,40":{"type":"Blue"},"40,40":{"type":"Blue"},"0,20":{"type":"Blue"},"20,20":{"type":"Blue"},"40,20":{"type":"Blue"},"60,0":{"type":"Blue"}},"speed":0.5,"v":1}');
+	// 		go = new Creature(this, data);
+	// 	}
+	// 	else if(this.parent.menu.selectedMenuItem.label == "Blobacon")
+	// 	{
+	// 		var data = JSON.parse('{"blocks":{"0,0":{"type":"Green"},"20,0":{"type":"Green"},"40,0":{"type":"Green"},"40,20":{"type":"Green"},"40,40":{"type":"Green"},"20,40":{"type":"Green"},"0,40":{"type":"Green"},"0,20":{"type":"Green"},"20,20":{"type":"Blue"},"40,60":{"type":"Green"},"0,60":{"type":"Green"}},"speed":0.001,"v":1}');
+	// 		go = new Creature(this, data);
+	// 	}
+	//
+	// 	else if(this.parent.menu.selectedMenuItem.label == "Bridge")
+	// 	{
+	// 		var data = JSON.parse('{"blocks":{"100,0":{"type":"Yellow"},"80,0":{"type":"White"},"60,0":{"type":"White"},"40,0":{"type":"White"},"20,0":{"type":"White"},"0,0":{"type":"White"}},"speed":0.5,"v":1}');
+	// 		go = new Item(this, data);
+	// 	}
+	// 	else
+	// 	{
+	// 		go = Block.createBlock(blockData.type, this, blockData);
+	//
+	// 	}
+	//
+	// 	return go;
+	// },
+	
 	init: function(parent)
 	{
 		this._super();
@@ -47,11 +92,14 @@ var Region = Class.extend({
 			key.fromString(k);
 			var blockData = data[k];
 			var block = Block.createBlock(blockData.type, this, blockData);
-			block.x = key.x;
-			block.y = key.y;
-			block.commit();
-			console.log(block);
-			this.addObject(block);
+			if(block != null)
+			{
+				block.x = key.x;
+				block.y = key.y;
+				block.commit();
+				console.log(block);
+				this.addObject(block);
+			}
 		}
 	},
 	
@@ -527,30 +575,34 @@ var RegionIndex = Class.extend({
 			return true;
 		}
 		
-		// Get all keys occupied by the object to be moved.
-		// Using key's xy value because the objet itself has likely already moved. (???)
-		var startOccupiedKeys = this.getOccupiedKeys(currKey.x, currKey.y, o.width, o.height);
-		// Find the bounding box that occupies the entire movement.
-		var totalBounds = this.getBoundingBox(currKey.x, currKey.y, o.width, o.height, o.x, o.y, o.width, o.height);
-		// Find all keys inside the total bounds.
-		var totalOccupiedKeys = this.getOccupiedKeys(totalBounds[0], totalBounds[1], totalBounds[2], totalBounds[3]);
-		// Find the keys that are newly occupied during the move. Don't need to check keys that were already occupied.
-		var keys = this.arrayDifference(startOccupiedKeys, totalOccupiedKeys);
-
-		for(var i=0; i<keys.length; ++i)
+		if(o.collisionDetectionEnabled == true)
 		{
-			var xy = keys[i].split(",");
-			var kx = parseInt(xy[0]);
-			var ky = parseInt(xy[1]);
-			
-			var blockingObject = this.getObjectAt(kx, ky);
-			if(blockingObject != null)
+			// Get all keys occupied by the object to be moved.
+			// Using key's xy value because the objet itself has likely already moved. (???)
+			var startOccupiedKeys = this.getOccupiedKeys(currKey.x, currKey.y, o.width, o.height);
+			// Find the bounding box that occupies the entire movement.
+			var totalBounds = this.getBoundingBox(currKey.x, currKey.y, o.width, o.height, o.x, o.y, o.width, o.height);
+			// Find all keys inside the total bounds.
+			var totalOccupiedKeys = this.getOccupiedKeys(totalBounds[0], totalBounds[1], totalBounds[2], totalBounds[3]);
+			// Find the keys that are newly occupied during the move. Don't need to check keys that were already occupied.
+			var keys = this.arrayDifference(startOccupiedKeys, totalOccupiedKeys);
+
+			for(var i=0; i<keys.length; ++i)
 			{
-				o.collision(currKey, blockingObject);
-				// return false;
+				var xy = keys[i].split(",");
+				var kx = parseInt(xy[0]);
+				var ky = parseInt(xy[1]);
+			
+				var blockingObject = this.getObjectAt(kx, ky);
+				if(blockingObject != null)
+				{
+					o.collision(currKey, blockingObject);
+				}
 			}
 		}
 		
+		// TODO This is a problem if collision detection is disabled and the object is moving fast enough to traverse more than one block at a time.
+		// SCD
 		if(o.getKey() != currKey.toString())
 		{
 			newRegion.addObject(o);
