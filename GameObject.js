@@ -23,6 +23,7 @@ var GameObject = Class.extend({
 		this.width = 0;
 		this.height = 0;
 		this.speed = 0.2;
+		this.rotation = 0;
 		this.userInteractionEnabled = true;
 		this.childrenMustBeInBounds = true;	// If true, click detection only applies to children that are within the bounds of the parent.
 		this.syncToRegion = true; // Sync position changes to the owning region.
@@ -48,6 +49,7 @@ var GameObject = Class.extend({
 		this.targetWidth = this.width;
 		this.targetHeight = this.height;
 		this.targetSpeed = this.speed;
+		this.targetRotation = this.rotation;
 	},
 
 	containsPoint: function(x, y)
@@ -152,6 +154,11 @@ var GameObject = Class.extend({
 			this.height = this.capLerp(this.height, this.targetHeight, this.speed);
 			changed = true;
 		}
+		if(this.rotation != this.targetRotation)
+		{
+			this.rotation = this.capLerp(this.rotation, this.targetRotation, this.speed);
+			changed = true;
+		}
 		
 		if(changed && this.syncToRegion)
 		{
@@ -206,10 +213,10 @@ var GameObject = Class.extend({
 	
 	drawObject: function()
 	{
-		if(false)
+		if(this.parent && this.parent.debug) // this.parent could be null if the object was just marked for removal from the RegionIndex but has not yet been fully removed.
 		{
-			this.processing.stroke(128,128,128);
-			this.processing.fill(255,255,255);
+			this.processing.stroke(255,0,0);
+			this.processing.fill(0,0,0);
 			this.processing.textSize(8);
 			this.processing.textAlign(this.processing.LEFT, this.processing.TOP);
 			this.processing.text(this.x + ",\n" + this.y, 2, 2);

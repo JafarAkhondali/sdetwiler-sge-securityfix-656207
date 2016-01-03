@@ -14,15 +14,12 @@ var Key = require('./Key');
 var Item = Block.extend({
 	init: function(parent, data)
 	{
-		this.pendingData = null;
-		this.ownedObjects = [];
 		this._super(parent);
 		this.logger.scope = "Item";
-		this.logger.debug("called");
-
 		this.type = Item.Type;
-
+		this.ownedObjects = [];
 		this.pendingData = data;
+		this.actionActive = false;
 	},
 	
 	load: function(data)
@@ -47,10 +44,9 @@ var Item = Block.extend({
 			{
 				block.x = key.x + this.x;
 				block.y = key.y + this.y;
-				block.itemOwner = this;
-				this.ownedObjects.push(block);
 				block.commit();
-				this.parent.addObject(block);
+				this.ownedObjects.push(block);
+				this.parent.parent.addObject(block);
 			}
 		}
 	},
@@ -65,67 +61,92 @@ var Item = Block.extend({
 	
 	commit: function()
 	{
-		var dx = this.x-this.targetX;
-		var dy = this.y-this.targetY;
-		var dw = this.width-this.targetWidth;
-		var dh = this.height-this.targetHeight;
-		var ds = this.speed-this.targetSpeed;
-		
 		this._super();
-		
-		for(var i=0; i<this.ownedObjects.length; ++i)
-		{
-			var o = this.ownedObjects[i];
-			o.x+=dx;
-			o.y+=dy;
-			o.width+=dy;
-			o.height+=dh;
-			o.speed+=ds;
-			o.commit();
-		}
-		
-		if(this.pendingData != null)
-		{
-			this.load(this.pendingData);
-		}
 	},
 	
 	update: function()
 	{
-		var x = this.x;
-		var y = this.y;
-		// this.logger.debug("called");
-		// console.log(this.x, this.targetX, this.speed);
-		var changed = this._super();
-		if(changed == true)
+		// this.logger.debug("---");
+		if(this.pendingData)
 		{
-			var dx = this.x - x;
-			var dy = this.y - y;
-			console.log(dx, dy);
-			for(var i=0; i<this.ownedObjects.length; ++i)
+			this.load(this.pendingData);
+			this.pendingData = null;
+		}
+		
+		// Remove all owned objects from the RegionIndex.
+		for(var i=0; i<this.ownedObjects.length; ++i)
+		{
+			var o = this.ownedObjects[i];
+			if(o.parent != null)
 			{
-				var o = this.ownedObjects[i];
-				o.x+= dx;
-				o.y+= dy;
-				var oldKey = o.getKey();
-				o.commit();
-				var newKey = o.getKey();
-				if(oldKey.toString() != newKey.toString())
+				var key = o.getKey();
+				var existingObject = this.parent.parent.getObjectAt(key.x, key.y);
+				if(existingObject != this)
 				{
-					this.parent.parent.removeObject(oldKey);
+					this.parent.parent.removeObject(key);
+				}
+				
+			}
+		}
+
+
+		var changed = this._super();
+
+			
+		// Put the owned objects back in their new locations.
+		for(var i=0; i<this.ownedObjects.length; ++i)
+		{
+			var o = this.ownedObjects[i];
+			var dx = this.x - o.x;
+			var dy = this.y - o.y;
+			var r = Math.sqrt((dx*dx) + (dy*dy));
+			
+			var ox = r * Math.cos(this.processing.radians(this.rotation));
+			var oy = r * Math.sin(this.processing.radians(this.rotation));
+			ox = Math.round10(ox, -4);
+			oy = Math.round10(oy, -4);
+			
+			o.x = o.targetX = this.x + ox;
+			o.y = o.targetY = this.y + oy;
+			var newKey = o.getKey();
+
+			var existingObject = this.parent.parent.getObjectAt(newKey.x, newKey.y);
+			if(existingObject == null)
+			{
+				this.parent.parent.addObject(o);
+			}
+			else
+			{
+				// TODO
+			//	this.logger.debug("Item collision or overlapping Item ownedObjet at " + newKey.toString());
+			}
+		}
+
+		if(changed == false)
+		{
+			if(this.actionActive == true)
+			{
+				this.actionActive = false;
+				this.logger.debug("inactive");
+				
+				// Force all owned objects to their key locations.
+				for(var i=0; i<this.ownedObjects.length; ++i)
+				{
+					var o = this.ownedObjects[i];
+					var key = o.getKey();
+					o.targetX = o.x = key.x;
+					o.targetY = o.y = key.y;
+					this.parent.parent.removeObject(key);
 					this.parent.parent.addObject(o);
 				}
+				
+				
+				
+				console.log(this.ownedObjects);
 			}
 		}
-		if(changed == false && this.collisionDetectionEnabled == false)
-		{
-			this.collisionDetectionEnabled = true;
-			for(var i=0; i<this.ownedObjects.length; ++i)
-			{
-				var o = this.ownedObjects[i];
-				o.collisionDetectionEnabled = true;
-			}
-		}
+		
+		
 		return changed;
 	},
 	
@@ -135,11 +156,21 @@ var Item = Block.extend({
 		// this.targetY = this.y = collisionAtKey.y;
 	},
 	
+	preDraw: function()
+	{
+		this._super();
+		this.processing.translate(Block.Width/2, Block.Height/2);
+		this.processing.rotate(this.processing.radians(this.rotation));
+		this.processing.translate(-Block.Width/2, -Block.Height/2);
+	},
+	
 	drawObject: function()
 	{
-		this.processing.fill(this.fillColor);
-		this.processing.stroke(this.strokeColor);
-		this.processing.rect(0, 0, this.width, this.height);
+		this._super();
+	},
+	
+	postDraw: function()
+	{
 		this._super();
 	},
 	
@@ -157,14 +188,14 @@ var Item = Block.extend({
 	startAction: function()
 	{
 		this.logger.debug("called");
-		this.collisionDetectionEnabled = false;
-		
-		this.targetX = this.x+40;
-		console.log(this.x, this.targetX);
-		for(var i=0; i<this.ownedObjects.length; ++i)
+		this.actionActive = true;
+		if(this.targetRotation == 0)
 		{
-			var o = this.ownedObjects[i];
-			o.collisionDetectionEnabled = false;
+			this.targetRotation = 90;
+		}
+		else
+		{
+			this.targetRotation = 0;
 		}
 	}
 	

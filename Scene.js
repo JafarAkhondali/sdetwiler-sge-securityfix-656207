@@ -93,7 +93,7 @@ var Scene = Region.RegionIndex.extend({
 		
 		else if(this.parent.menu.selectedMenuItem.label == "Bridge")
 		{
-			var data = JSON.parse('{"blocks":{"100,0":{"type":"Yellow"},"80,0":{"type":"White"},"60,0":{"type":"White"},"40,0":{"type":"White"},"20,0":{"type":"White"},"0,0":{"type":"White"}},"speed":0.5,"v":1}');
+			var data = JSON.parse('{"blocks":{"0,0":{"type":"Yellow"},"20,0":{"type":"White"},"40,0":{"type":"White"},"60,0":{"type":"White"},"80,0":{"type":"White"},"100,0":{"type":"White"},"120,0":{"type":"White"}},"speed":0.5,"v":1}');
 			go = new Item(this, data);
 		}
 		

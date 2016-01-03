@@ -8,51 +8,7 @@ var Key = require('./Key');
 //
 ///////////////////////////////////////////////////////////////////////////////
 var Region = Class.extend({
-	
-	
-	// createThing: function(type, parent, data)
-	// {
-	// 	if(this.parent.menu.selectedMenuItem.label == "Villageacon")
-	// 	{
-	// 		var villageacon = '{"blocks":{"40,0":{"type":"Red"},"40,20":{"type":"White"},"40,40":{"type":"White"},"40,60":{"type":"White"},"20,60":{"type":"White"},"0,60":{"type":"White"},"0,80":{"type":"White"},"40,80":{"type":"White"},"60,60":{"type":"White"},"80,60":{"type":"White"},"80,80":{"type":"White"},"20,20":{"type":"White"},"60,20":{"type":"White"},"80,20":{"type":"Orange"},"0,20":{"type":"Orange"}},"speed":0.05,"v":1}';
-	// 		var data = JSON.parse(villageacon);
-	// 		go = new Creature(this, data);
-	// 	}
-	// 	else if(this.parent.menu.selectedMenuItem.label == "Baby")
-	// 	{
-	// 		var data = JSON.parse('{"blocks":{"20,0":{"type":"Red"},"20,20":{"type":"Brown"},"20,40":{"type":"Brown"},"0,20":{"type":"Brown"},"40,20":{"type":"Brown"},"20,60":{"type":"Brown"}},"speed":0.1,"v":1}');
-	// 		go = new Creature(this, data);
-	// 	}
-	// 	else if(this.parent.menu.selectedMenuItem.label == "Chickenacon")
-	// 	{
-	// 		var data = JSON.parse('{"blocks":{"20,0":{"type":"Red"},"20,20":{"type":"White"},"0,20":{"type":"White"},"40,20":{"type":"White"},"20,40":{"type":"Yellow"}},"speed":0.12,"v":1}');
-	// 		go = new Creature(this, data);
-	// 	}
-	// 	else if(this.parent.menu.selectedMenuItem.label == "Mineracon")
-	// 	{
-	// 		var data = JSON.parse('{"blocks":{"0,40":{"type":"Blue"},"40,40":{"type":"Blue"},"0,20":{"type":"Blue"},"20,20":{"type":"Blue"},"40,20":{"type":"Blue"},"60,0":{"type":"Blue"}},"speed":0.5,"v":1}');
-	// 		go = new Creature(this, data);
-	// 	}
-	// 	else if(this.parent.menu.selectedMenuItem.label == "Blobacon")
-	// 	{
-	// 		var data = JSON.parse('{"blocks":{"0,0":{"type":"Green"},"20,0":{"type":"Green"},"40,0":{"type":"Green"},"40,20":{"type":"Green"},"40,40":{"type":"Green"},"20,40":{"type":"Green"},"0,40":{"type":"Green"},"0,20":{"type":"Green"},"20,20":{"type":"Blue"},"40,60":{"type":"Green"},"0,60":{"type":"Green"}},"speed":0.001,"v":1}');
-	// 		go = new Creature(this, data);
-	// 	}
-	//
-	// 	else if(this.parent.menu.selectedMenuItem.label == "Bridge")
-	// 	{
-	// 		var data = JSON.parse('{"blocks":{"100,0":{"type":"Yellow"},"80,0":{"type":"White"},"60,0":{"type":"White"},"40,0":{"type":"White"},"20,0":{"type":"White"},"0,0":{"type":"White"}},"speed":0.5,"v":1}');
-	// 		go = new Item(this, data);
-	// 	}
-	// 	else
-	// 	{
-	// 		go = Block.createBlock(blockData.type, this, blockData);
-	//
-	// 	}
-	//
-	// 	return go;
-	// },
-	
+
 	init: function(parent)
 	{
 		this._super();
@@ -129,7 +85,10 @@ var Region = Class.extend({
 		var key = x + "," + y;
 		if(key in this.objects)
 		{
-			return this.objects[key];
+			if(this.objectKeysToRemove.indexOf(key) < 0)
+			{
+				return this.objects[key];
+			}
 		}
 		return null;
 	},
@@ -140,7 +99,15 @@ var Region = Class.extend({
 		// this.logger.debug("called key:" + key);
 		if(key in this.objects)
 		{
-			this.logger.warn("Replacing object at " + key);
+			// this.logger.debug("Replacing object at " + key);
+			
+			var i = this.objectKeysToRemove.indexOf(key);
+			if(i>=0)
+			{
+				// this.logger.debug("Removing old key from objectKeysToRemove");
+				this.objectKeysToRemove.splice(i, 1);
+			}
+			
 		}
 		this.objects[key] = o;
 		o.parent = this;
@@ -212,6 +179,8 @@ var Region = Class.extend({
 			var key = this.objectKeysToRemove[i];
 			if(key in this.objects)
 			{
+				var o = this.objects[key];
+				// o.parent = null; SCD
 				delete this.objects[key];
 				// this.logger.debug("deleted object key:" + key);
 			}
@@ -618,7 +587,11 @@ var RegionIndex = Class.extend({
 		var c = 0;
 		for(var k in this.regions)
 		{
-			c+= this.regions[k].objectCount();
+			var r = this.regions[k];
+			if(r != null)
+			{
+				c+= r.objectCount();
+			}
 		}
 
 		return c;
