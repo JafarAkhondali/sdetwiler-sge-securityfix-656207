@@ -9,6 +9,4 @@ make 2D games.
 Current Status
 ---------------------
 
-This is in extremely early development and is not yet ready for use. A work in progress sample using sge is <a href="http://piratestudios.com/funnythings/">available</a>:
-
-<iframe width="800" height="600" src="http://piratestudios.com/funnythings/" frameborder="0" allowfullscreen></iframe>
+This is in extremely early development and is not yet ready for use. A work in progress sample using sge is <a href="http://piratestudios.com/funnythings/">available</a>.
