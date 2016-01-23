@@ -29,6 +29,8 @@ var Menu = GameObject.extend({
 		this.addMenuItem("Chickenacon", this.processing.color(255, 140, 0), null);
 		this.addMenuItem("Mineracon", this.processing.color(255, 140, 0), null);
 		this.addMenuItem("Blobacon", this.processing.color(255, 140, 0), null);
+		this.addMenuItem("Spiritacon", this.processing.color(255, 140, 0), null);
+		this.addMenuItem("Cloudacon", this.processing.color(255, 140, 0), null);
 
 		this.addMenuItem("Bridge", this.processing.color(255, 140, 0), null);
 
@@ -38,6 +40,8 @@ var Menu = GameObject.extend({
 		this.addMenuItem("White", this.processing.color(255, 255, 255), null);
 		this.addMenuItem("Yellow", this.processing.color(255, 255, 0), null);
 		this.addMenuItem("Orange", this.processing.color(255, 140, 0), null);
+		this.addMenuItem("Purple", this.processing.color(255, 0, 255), null);
+		this.addMenuItem("Black", this.processing.color(0, 0, 0), null);
 		
 		this.selectMenuItem(item);
 

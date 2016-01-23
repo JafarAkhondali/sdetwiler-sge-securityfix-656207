@@ -49,6 +49,8 @@ var Item = Block.extend({
 				this.parent.parent.addObject(block);
 			}
 		}
+		
+		this.targetSpeed = this.speed = 0.005;
 	},
 	
 	getKey: function()
@@ -138,6 +140,7 @@ var Item = Block.extend({
 					o.targetY = o.y = key.y;
 					this.parent.parent.removeObject(key);
 					this.parent.parent.addObject(o);
+					console.log(o.x + "," + o.y);
 				}
 				
 				
