@@ -39,9 +39,12 @@ var Block = GameObject.extend({
 	
 	drawObject: function()
 	{
+		var key = this.getKey();
+		var dx = key.x - this.x;
+		var dy = key.y - this.y;
 		this.processing.fill(this.fillColor);
 		this.processing.stroke(this.strokeColor);
-		this.processing.rect(0, 0, this.width, this.height);
+		this.processing.rect(dx, dy, this.width, this.height);
 		this._super();
 	},
 	

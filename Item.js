@@ -50,9 +50,9 @@ var Item = Block.extend({
 			}
 		}
 		
-		this.targetSpeed = this.speed = 0.005;
+		this.targetSpeed = this.speed = 0.05;
 	},
-	
+		
 	getKey: function()
 	{
 		var key = new Key();
@@ -74,57 +74,59 @@ var Item = Block.extend({
 			this.load(this.pendingData);
 			this.pendingData = null;
 		}
-		
-		// Remove all owned objects from the RegionIndex.
-		for(var i=0; i<this.ownedObjects.length; ++i)
-		{
-			var o = this.ownedObjects[i];
-			if(o.parent != null)
-			{
-				var key = o.getKey();
-				var existingObject = this.parent.parent.getObjectAt(key.x, key.y);
-				if(existingObject != this)
-				{
-					this.parent.parent.removeObject(key);
-				}
-				
-			}
-		}
-
 
 		var changed = this._super();
-
-			
-		// Put the owned objects back in their new locations.
-		for(var i=0; i<this.ownedObjects.length; ++i)
+		if(changed == true)
 		{
-			var o = this.ownedObjects[i];
-			var dx = this.x - o.x;
-			var dy = this.y - o.y;
-			var r = Math.sqrt((dx*dx) + (dy*dy));
-			
-			var ox = r * Math.cos(this.processing.radians(this.rotation));
-			var oy = r * Math.sin(this.processing.radians(this.rotation));
-			ox = Math.round10(ox, -4);
-			oy = Math.round10(oy, -4);
-			
-			o.x = o.targetX = this.x + ox;
-			o.y = o.targetY = this.y + oy;
-			var newKey = o.getKey();
-
-			var existingObject = this.parent.parent.getObjectAt(newKey.x, newKey.y);
-			if(existingObject == null)
+			// Remove all owned objects from the RegionIndex.
+			for(var i=0; i<this.ownedObjects.length; ++i)
 			{
-				this.parent.parent.addObject(o);
+				var o = this.ownedObjects[i];
+				if(o.parent != null)
+				{
+					var key = o.getKey();
+					var existingObject = this.parent.parent.getObjectAt(key.x, key.y);
+					if(existingObject != this)
+					{
+						this.parent.parent.removeObject(key);
+					}
+				
+				}
 			}
-			else
+
+			var thisKey = this.getKey();	
+			// Put the owned objects back in their new locations.
+			for(var i=0; i<this.ownedObjects.length; ++i)
 			{
-				// TODO
-			//	this.logger.debug("Item collision or overlapping Item ownedObjet at " + newKey.toString());
+				var o = this.ownedObjects[i];
+				var dx = thisKey.x - o.x;
+				var dy = thisKey.y - o.y;
+				var r = Math.sqrt((dx*dx) + (dy*dy));
+			
+				var ox = r * Math.cos(this.processing.radians(this.rotation));
+				var oy = r * Math.sin(this.processing.radians(this.rotation));
+				ox = Math.round10(ox, -4);
+				oy = Math.round10(oy, -4);
+			
+				o.x = o.targetX = thisKey.x + ox;
+				o.y = o.targetY = thisKey.y + oy;
+				var newKey = o.getKey();
+
+				var existingObject = this.parent.parent.getObjectAt(newKey.x, newKey.y);
+				if(existingObject == null)
+				{
+					this.parent.parent.addObject(o);
+				}
+				else
+				{
+					// TODO
+				//	this.logger.debug("Item collision or overlapping Item ownedObjet at " + newKey.toString());
+				}
 			}
 		}
 
-		if(changed == false)
+		// if(changed == false)
+		else
 		{
 			if(this.actionActive == true)
 			{
@@ -136,8 +138,8 @@ var Item = Block.extend({
 				{
 					var o = this.ownedObjects[i];
 					var key = o.getKey();
-					o.targetX = o.x = key.x;
-					o.targetY = o.y = key.y;
+					o.targetX = o.x = key.x+(Block.Width/2);
+					o.targetY = o.y = key.y+(Block.Height/2);
 					this.parent.parent.removeObject(key);
 					this.parent.parent.addObject(o);
 					console.log(o.x + "," + o.y);
@@ -162,9 +164,14 @@ var Item = Block.extend({
 	preDraw: function()
 	{
 		this._super();
-		this.processing.translate(Block.Width/2, Block.Height/2);
+		
+		var key = this.getKey();
+		var dx = key.x - this.x;
+		var dy = key.y - this.y;
+		
+		this.processing.translate((Block.Width/2)+dx, (Block.Height/2)+dy);
 		this.processing.rotate(this.processing.radians(this.rotation));
-		this.processing.translate(-Block.Width/2, -Block.Height/2);
+		this.processing.translate(-((Block.Width/2)+dx), -((Block.Height/2)+dy));
 	},
 	
 	drawObject: function()

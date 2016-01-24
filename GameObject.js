@@ -54,7 +54,9 @@ var GameObject = Class.extend({
 
 	containsPoint: function(x, y)
 	{
-		if((this.x <= x) && ((this.x+this.width) > x) && (this.y <= y) && ((this.y+this.height) > y))
+		this.logger.debug("point:"+x+","+y+" loc:"+this.x+","+this.y);
+		var key = this.getKey()
+		if((key.x <= x) && ((key.x+this.width) > x) && (key.y <= y) && ((key.y+this.height) > y))
 		{
 			return true;
 		}

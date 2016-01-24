@@ -53,8 +53,8 @@ var Scene = Region.RegionIndex.extend({
 	
 	placeBlock: function(x, y)
 	{
-		x = Math.floor(x/Block.Width)*Block.Width;
-		y = Math.floor(y/Block.Height)*Block.Height;
+		// x = Math.floor(x/Block.Width)*Block.Width;
+		// y = Math.floor(y/Block.Height)*Block.Height;
 		
 		if(this.getObjectAt(x, y) != null)
 		{
@@ -119,6 +119,11 @@ var Scene = Region.RegionIndex.extend({
 		
 		if(go != null)
 		{
+			x = Math.floor(x/Block.Width)*Block.Width;
+			y = Math.floor(y/Block.Height)*Block.Height;
+			x+=(Block.Width/2);
+			y+=(Block.Height/2);
+
 			go.x = x;
 			go.y = y;
 			go.commit();
